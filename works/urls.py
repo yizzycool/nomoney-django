@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('callback/', views.webhook, name='webhook')
+    path('webhook/', views.webhook, name='webhook')
 ]
