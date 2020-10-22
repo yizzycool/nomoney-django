@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.utils.dateparse import parse_datetime
+from django.utils import timezone
 import os
 import sqlite3
-from datetime import datetime
 from time import gmtime, strftime
 from works.models import User, Case, Application
 import json
@@ -15,6 +15,7 @@ def index(request):
 
 
 def update_profile(request):
+    return HttpResponse(timezone.localtime(timezone.now()))
     pass
     body = request.body
     #timezone = strftime("%z", gmtime())  # get timezone
