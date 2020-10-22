@@ -11,14 +11,14 @@ class User(models.Model):
     ]
     userId = models.CharField(max_length=200, unique=True)
     displayName = models.CharField(max_length=200)
-    image = models.CharField(max_length=200)
-    intro = models.TextField()
-    gender = models.CharField(max_length=1, choices=GENDER, default='')
-    birthday = models.DateField(null=True)
+    image = models.CharField(max_length=200, blank=True)
+    intro = models.TextField(default='', blank=True)
+    gender = models.CharField(max_length=1, choices=GENDER, default='', blank=True)
+    birthday = models.DateField(null=True, blank=True)
     phone = models.CharField(max_length=20, unique=True)
-    county = models.CharField(max_length=20)
-    rating = models.FloatField(null=True, default=None)
-
+    county = models.CharField(max_length=20, blank=True)
+    rating = models.FloatField(null=True, default=None, blank=True)
+    lineId = models.CharField(max_length=100, blank=True)
 
 class Case(models.Model):
     STATUS = [
@@ -32,7 +32,7 @@ class Case(models.Model):
     text = models.TextField()
     location = models.CharField(max_length=100)
     pay = models.IntegerField()
-    status = models.CharField(max_length=1, choices=STATUS, default='O')
+    status = models.CharField(max_length=1, choices=STATUS, default='O', blank=True)
     publishTime = models.DateTimeField(default=tz.localtime(tz.now()))
     modifiedTime = models.DateTimeField(default=tz.localtime(tz.now()))
 
@@ -45,7 +45,7 @@ class Application(models.Model):
     ]
     caseId = models.ForeignKey(Case, on_delete=models.DO_NOTHING)
     employeeId = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    message = models.TextField()
-    accepted = models.BooleanField(max_length=1, choices=ACCEPTED, default='T')
-    employerRating = models.FloatField(null=True, default=None)
-    employeeRating = models.FloatField(null=True, default=None)
+    message = models.TextField(default='', blank=True)
+    accepted = models.BooleanField(max_length=1, choices=ACCEPTED, default='T', blank=True)
+    employerRating = models.FloatField(null=True, default=None, blank=True)
+    employeeRating = models.FloatField(null=True, default=None, blank=True)
