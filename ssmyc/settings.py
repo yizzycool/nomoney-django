@@ -26,9 +26,14 @@ SECRET_KEY = 'y)9+ezfenza1ek=3cy9cr6jg7t%@sht9i4@b^$q5#2aowq_9)7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+##############################
 USE_X_FORWARDED_HOST = True
 # Honor the 'X-Forwarded-Proto' header for request.is_secure().
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+USE_TZ = True
+TIME_ZONE = 'Asia/Taipei'
+##############################
 
 ALLOWED_HOSTS = ['*']
 
@@ -49,7 +54,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
