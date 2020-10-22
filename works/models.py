@@ -22,12 +22,12 @@ class User(models.Model):
 
 
 class Case(models.Model):
+    # alias caseId='id'
     STATUS = [
         ('O', 'open'),
         ('C', 'close'),
         ('D', 'delete'),
     ]
-    #caseId = models.IntegerField(unique=True)
     employerId = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=200)
     text = models.TextField()

@@ -7,21 +7,24 @@ import sqlite3
 from time import gmtime, strftime
 from works.models import User, Case, Application
 import json
+from django.template import Context, loader
 
 
 # Create your views here.
 def index(request):
-    return HttpResponse('Hold on!')
+    #template  = loader.get_template('index_template/index.html')
+    return HttpResponse('Hello')
 
 
 def get_profile(request):
+    # print(request.body.decode('utf-8'))
     body = json.loads(request.body.decode('utf-8'))
     userIdToken = body['userIdToken']
     obj = User.objects.filter(userId=userIdToken).first()
     if obj == None:
         return JsonResponse({'noData':None})
     data = {
-        'uerId': obj.userId,
+        'userId': obj.userId,
         'displayName': obj.displayName,
         'image': obj.image,
         'intro': obj.intro,
@@ -102,11 +105,33 @@ def get_employer_history(body):
     })
 
 
-def get_application_by_case(request):
-    pass
+def get_application_by_case_id(request):
+    body = json.loads(request.body.decode('utf-8'))
+    caseId = body['caseId']
+    obj = Case.objects.filter(id=caseId).first()
+    if obj == None: return JsonResponse({'noData':True})
+    child_obj = obj.application_set.all().order_by('-id')
+    applications = [
+        {
+            'caseId': obj.caseId.id,
+            'employeeId': obj.employeeId.userId,
+            'displayName': obj.employeeId.displayName,
+            'message': obj.message,
+            'accepted': obj.accepted,
+            'employerRating': obj.employeeRating,
+            'employerRating': obj.employerRating,
+        }
+        for obj in child_obj
+    ]
+    return JsonResponse({
+        'count': len(applications),
+        'applications': applications,
+    })
 
 
-def find_job(request):
+def get_case_by_condition(request):
+    body = json.loads(request.body.decode('utf-8'))
+    
     pass
 
 
@@ -132,36 +157,3 @@ def crud_user(request):
 
     pass
     
-
-
-
-
-
-
-#
-# Line-bot section
-#
-
-from linebot import LineBotApi, WebhookHandler
-from linebot.exceptions import InvalidSignatureError
-from linebot.models import (
-    MessageEvent,
-    TextMessage,
-    TextSendMessage,
-    FlexSendMessage,
-    LocationMessage,
-    LocationSendMessage,
-    TemplateSendMessage,
-    MessageTemplateAction,
-    ButtonsTemplate,
-    PostbackTemplateAction,
-    URITemplateAction,
-    CarouselTemplate,
-    CarouselColumn,
-    ImageCarouselTemplate,
-    ImageCarouselColumn,
-    PostbackEvent,
-)
-
-line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_TOKEN'))
-handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
