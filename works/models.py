@@ -20,6 +20,7 @@ class User(models.Model):
     rating = models.FloatField(null=True, default=None, blank=True)
     lineId = models.CharField(max_length=100, blank=True)
 
+
 class Case(models.Model):
     STATUS = [
         ('O', 'open'),
@@ -46,6 +47,6 @@ class Application(models.Model):
     caseId = models.ForeignKey(Case, on_delete=models.DO_NOTHING)
     employeeId = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     message = models.TextField(default='', blank=True)
-    accepted = models.BooleanField(max_length=1, choices=ACCEPTED, default='T', blank=True)
+    accepted = models.CharField(max_length=1, choices=ACCEPTED, default='T', blank=True)
     employerRating = models.FloatField(null=True, default=None, blank=True)
     employeeRating = models.FloatField(null=True, default=None, blank=True)
