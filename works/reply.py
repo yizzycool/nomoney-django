@@ -47,7 +47,7 @@ def callback(request):
 
 @handler.add(MessageEvent, message=TextMessage)
 def message_text(event):
-    if event.message.text != '精選工作':
+    if event.message.text != '精選外快':
         return
 
     userid = event.source.user_id
@@ -58,11 +58,11 @@ def message_text(event):
         cases_message = recommanded_cases_message(cases)
         line_bot_api.reply_message(
             event.reply_token,
-            FlexSendMessage(alt_text='精選', contents=cases_message)
+            FlexSendMessage(alt_text='精選外快', contents=cases_message)
         )
     else:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='目前找不到精選工作喔！')
+            TextSendMessage(text='目前找不到精選外快喔！')
         )
 
