@@ -16,7 +16,7 @@ import json
 import os
 import sys
 
-from .reply import recommanded_cases_message
+from .message_objects import recommanded_cases_message
 from .views import recommanded_cases
 
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -45,12 +45,12 @@ def callback(request):
 
     return HttpResponse("callback")
 
-@handler.add(MessageEvent)
+@handler.add(MessageEvent, message=TextMessage)
 def message_text(event):
     if event.message.text != '精選工作':
         return
 
-    userid = event.source.userid
+    userid = event.source.userId
 
     recommanded_cases = recommanded_cases(userid)
     recommanded_cases_message = recommanded_cases_message(recommanded_cases)

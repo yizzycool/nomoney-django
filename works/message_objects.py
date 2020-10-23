@@ -23,15 +23,9 @@ def acceptance_message(case, user):
                     "layout": "vertical",
                     "contents": [],
                     "position": "absolute",
-                    "background": {
-                        "type": "linearGradient",
-                        "angle": "0deg",
-                        "endColor": "#00000000",
-                        "startColor": "#000000DD",
-                        "centerColor": "#00000088"
-                    },
+                    "backgroundColor": "#00000055",
                     "width": "100%",
-                    "height": "50%",
+                    "height": "100%",
                     "offsetBottom": "0px",
                     "offsetStart": "0px",
                     "offsetEnd": "0px"
@@ -198,15 +192,9 @@ def application_message(case, application):
                     "layout": "vertical",
                     "contents": [],
                     "position": "absolute",
-                    "background": {
-                        "type": "linearGradient",
-                        "angle": "0deg",
-                        "endColor": "#00000000",
-                        "startColor": "#000000DD",
-                        "centerColor": "#00000088"
-                    },
+                    "backgroundColor": "#00000055",
                     "width": "100%",
-                    "height": "50%",
+                    "height": "100%",
                     "offsetBottom": "0px",
                     "offsetStart": "0px",
                     "offsetEnd": "0px"
