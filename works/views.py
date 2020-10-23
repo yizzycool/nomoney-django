@@ -55,7 +55,7 @@ def get_employee_history(body):
     # order by ...
     order_list = {'O':3, 'C':2, 'D':1}
     obj = Application.objects.filter(employeeId__userId=userIdToken).all()
-    sorted_obj = sorted(obj, key=lambda x: (x.caseId.publishTime, order_list[x.caseId.status]), reverse=True)
+    sorted_obj = sorted(obj, key=lambda x: (order_list[x.caseId.status], x.caseId.publishTime), reverse=True)
     cases = [
         {
             'employer':{
@@ -96,7 +96,7 @@ def get_employer_history(body):
     order_list = {'O':3, 'C':2, 'D':1}
     #obj = Case.objects.filter(employerId__userId=userIdToken).extra(select={'o':'(case when status="O" then 1 when status="C" then 2 when status="D" then 3 end)'}, order_by=['o', '-publishTime']).all()
     obj = Case.objects.filter(employerId__userId=userIdToken).all()
-    sorted_obj = sorted(obj, key=lambda x: (x.publishTime, order_list[x.status]), reverse=True)
+    sorted_obj = sorted(obj, key=lambda x: (order_list[x.status], x.publishTime), reverse=True)
     #obj = Case.objects.filter(employerId__userId=userIdToken).order_by('-publishTime')
     cases = [
         {
@@ -373,6 +373,10 @@ def crud_application(request):
             obj.message=body['message']
         if 'accepted' in body:
             obj.accepted=body['accepted']
+            if body['accpeted'] == True:
+                # call line-bot 傳給使用者
+                # coding here ........
+                pass
         if 'employerRating' in body:
             obj.employerRating=body['employerRating']
         if 'employeeRating' in body:
@@ -409,3 +413,19 @@ def crud_application(request):
     pass
 
 
+
+######################
+# API for line-bot
+######################
+def recommanded_cases(userIdToken):
+    gender_exclude = {'M':'限女', 'F':'限男'}
+    obj = User.objects.filter(userIdToken)
+    if obj.count() != 1:
+        return None
+    obj = obj.first()
+    intro = obj.intro
+    gender = obj.gender
+    birthday = obj.birthday
+    county = obj.county
+    cases = Case.objects.filter()
+    pass
