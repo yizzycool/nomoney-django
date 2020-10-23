@@ -53,9 +53,16 @@ def message_text(event):
     userid = event.source.userId
 
     cases = recommanded_cases(userid)
-    cases_message = recommanded_cases_message(cases)
-    line_bot_api.reply_message(
-        event.reply_token,
-        FlexSendMessage(alt_text = '有人需要你的幫忙！', contents=cases_message)
-    )
+
+    if cases:
+        cases_message = recommanded_cases_message(cases)
+        line_bot_api.reply_message(
+            event.reply_token,
+            FlexSendMessage(alt_text = '有人需要你的幫忙！', contents=cases_message)
+        )
+    else:
+        line_bot_api.reply_message(
+            event.reply_token,
+            FlexSendMessage(TextSendMessage(text='目前找不到精選工作喔！'))
+        )
 

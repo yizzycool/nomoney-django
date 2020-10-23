@@ -13,7 +13,6 @@ print(channel_access_token)
 # %%
 line_bot_api = LineBotApi(channel_access_token)
 
-
 def push_message(userid, messages):
     try:
         line_bot_api.push_message(userid, messages)
@@ -210,8 +209,8 @@ if __name__ == '__main__':
 
     # test_userid = 'U04d1a0375336023979bce781d7da76b3'
     # notify_acceptance(test_userid, test_case, test_user)
-    # notify_application(test_userid, test_case, test_application)
-    push_message('U2f7e15e05e4c914d1131b88756d1c39a', FlexSendMessage(alt_text='精選', contents=(test_message)))
+    notify_application(test_userid, test_case, test_application)
+    # push_message('U2f7e15e05e4c914d1131b88756d1c39a', FlexSendMessage(alt_text='精選', contents=(test_message)))
     # push_message(test_userid, TextSendMessage(text='Hello World!'))
 
 
