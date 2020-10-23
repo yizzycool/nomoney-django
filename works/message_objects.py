@@ -297,8 +297,8 @@ def recommanded_cases_message(cases):
     for idx, case in list(enumerate(cases)):
         title = case['title']
         description = case['description']
-        time = case['time']
         pay = case['pay']
+        location = case['location']
         bubble = {
             "type": "bubble",
             "size": "kilo",
@@ -354,12 +354,12 @@ def recommanded_cases_message(cases):
                                 "contents": [
                                     {
                                         "type": "icon",
-                                        "url": "https://imgur.com/C5SBrq6.png",
+                                        "url": "https://imgur.com/3pRXEWY.png",
                                         "position": "absolute"
                                     },
                                     {
                                         "type": "text",
-                                        "text": time,
+                                        "text": location,
                                         "offsetStart": "20px",
                                         "color": "#8C8C8C",
                                         "size": "xxs"

@@ -52,10 +52,10 @@ def message_text(event):
 
     userid = event.source.userId
 
-    recommanded_cases = recommanded_cases(userid)
-    recommanded_cases_message = recommanded_cases_message(recommanded_cases)
+    cases = recommanded_cases(userid)
+    cases_message = recommanded_cases_message(cases)
     line_bot_api.reply_message(
         event.reply_token,
-        FlexSendMessage(alt_text = '有人需要你的幫忙！', contents=recommanded_cases_message)
+        FlexSendMessage(alt_text = '有人需要你的幫忙！', contents=cases_message)
     )
 
