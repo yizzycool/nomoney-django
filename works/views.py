@@ -174,8 +174,6 @@ def search_case(request):
         for key, value in body['conditions'].items():
             if key == 'location':
                 obj = obj.filter(location__icontains=value)
-            if key == 'status':
-                obj = obj.filter(status__iexact=value)
             if key == 'minpay':
                 obj = obj.filter(pay__gt=int(value))
             if key == 'maxpay':
@@ -187,7 +185,7 @@ def search_case(request):
         else:
             obj = obj.filter(text__icontains=keyword)
     if obj.count() == 0:
-        return JsonResponse({'nodata':True})
+        return JsonResponse({'noData':True})
     else:
         total_match = obj.count()
         obj = obj[offset:offset+10]
