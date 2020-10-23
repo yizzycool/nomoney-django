@@ -1,3 +1,4 @@
 tokens.sh
 .venv
-.vscode
+.vscode/
+__pycache__/
