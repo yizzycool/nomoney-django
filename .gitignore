@@ -2,3 +2,5 @@ tokens.sh
 .venv
 .vscode/
 __pycache__/
+works/data.zip
+works/data/
