@@ -441,13 +441,13 @@ def recommanded_cases(userIdToken):
         
     cases = [{
         'caseId': case.id,
-        'title': case.title,
-        'description': case.text,
+        'title': case.title.strip(),
+        'description': case.text.strip(),
         'pay': case.pay,
         'publishTime': case.publishTime,
         'location': case.location,
         'matchScore': cases_score[idx],
     } for idx, case in enumerate(cases_obj)
-    ]
+    ][:5]
     cases = sorted(cases, key=lambda x: (x['matchScore'], x['publishTime']), reverse=True)
     return cases
