@@ -13,5 +13,4 @@ urlpatterns = [
     path('crud_case', views.crud_case, name='crud_case'),
     path('crud_app', views.crud_application, name='crud_app'),
     path('callback', reply.callback, name='callback')
-
 ]
