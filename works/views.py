@@ -420,14 +420,14 @@ def crud_application(request):
 ######################
 def recommanded_cases(userIdToken):
     gender_exclude = {'M':'限女', 'F':'限男', 'O':'', '':''}
-    user_obj = User.objects.filter(userIdToken)
+    user_obj = User.objects.filter(userId=userIdToken)
     if user_obj.count() != 1:
         return None
     user_obj = user_obj.first()
     intro = set(analyse.extract_tags(user_obj.intro))
-    gender = gender_exclude(user_obj.gender)
+    gender = gender_exclude[user_obj.gender]
     county = user_obj.county
-    cases_obj = Case.objects.filter(status='O').filter(title__iregex(gender)).filter(text__iregex(gender))
+    cases_obj = Case.objects.filter(status='O').exclude(title__iregex=gender).exclude(text__iregex=gender)
     cases_score = [0.0 for case in range(cases_obj.count())]
     for idx, case in enumerate(cases_obj):
         title = set(analyse.extract_tags(case.title))
@@ -441,13 +441,13 @@ def recommanded_cases(userIdToken):
         
     cases = [{
         'caseId': case.id,
-        'title': case.title,
-        'description': case.text,
+        'title': case.title.strip(),
+        'description': case.text.strip(),
         'pay': case.pay,
         'publishTime': case.publishTime,
-        'location': case.locaiton,
+        'location': case.location,
         'matchScore': cases_score[idx],
     } for idx, case in enumerate(cases_obj)
-    ]
+    ][:5]
     cases = sorted(cases, key=lambda x: (x['matchScore'], x['publishTime']), reverse=True)
     return cases
