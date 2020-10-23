@@ -175,10 +175,10 @@ def acceptance_message(user, case):
     return message
 
 
-def application_message(title, application):
-    title = title
+def application_message(case, application):
+    title = case['title']
     description = application['description']
-    image = application['image']
+    image = 'https://imgur.com/ac7lLvz.png'
     message = {
         "type": "bubble",
         "body": {

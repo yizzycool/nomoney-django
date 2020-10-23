@@ -6,7 +6,7 @@ import message_objects
 
 import os
 
-channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
+channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN2', None)
 
 print(channel_access_token)
 
@@ -29,9 +29,9 @@ def notify_acceptance(receiverid, user, case):
     push_message(receiverid, message_object)
     
 
-def notify_application(receiverid, title, application):
+def notify_application(receiverid, case, application):
     # 幫手出現了！
-    message = message_objects.application_message(title, application)
+    message = message_objects.application_message(case, application)
     message_object = FlexSendMessage(alt_text = '幫手出現了！', contents=message)
     push_message(receiverid, message_object)
 
@@ -256,7 +256,14 @@ test_message = {
     }
   ]
 }
+test_userid = 'U2f7e15e05e4c914d1131b88756d1c39a'
+test_case = {'title':'高中數學題', 'description':'高中數學題求解，請附上解題過程'}
+test_application = {'description':'我會ㄛ 選我選我'}
+test_user = {'phone_number': '0912345678', 'lineid': 'lineid'}
 
+notify_acceptance(test_userid, test_user, test_case)
 # push_message('U2f7e15e05e4c914d1131b88756d1c39a', FlexSendMessage(alt_text='精選', contents=(test_message)))
 # push_message('U2f7e15e05e4c914d1131b88756d1c39a', TextSendMessage(text='Hello World!'))
 
+
+# %%

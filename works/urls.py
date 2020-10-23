@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-form . import reply
+from . import reply
 
 urlpatterns = [
     path('', views.index, name='index'),
