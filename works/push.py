@@ -22,248 +22,250 @@ def push_message(userid, messages):
         print(e)
         pass
 
+
 def notify_acceptance(receiverid, user, case):
     # 有人需要你的幫忙！
     message = message_objects.acceptance_message(user, case)
-    message_object = FlexSendMessage(alt_text = '有人需要你的幫忙！', contents=message)
+    message_object = FlexSendMessage(alt_text='有人需要你的幫忙！', contents=message)
     push_message(receiverid, message_object)
-    
+
 
 def notify_application(receiverid, case, application):
     # 幫手出現了！
     message = message_objects.application_message(case, application)
-    message_object = FlexSendMessage(alt_text = '幫手出現了！', contents=message)
+    message_object = FlexSendMessage(alt_text='幫手出現了！', contents=message)
     push_message(receiverid, message_object)
 
 
-# demo userid: U2f7e15e05e4c914d1131b88756d1c39a
-test_message = {
-  "type": "carousel",
-  "contents": [
-    {
-      "type": "bubble",
-      "size": "kilo",
-      "hero": {
-        "type": "box",
-        "layout": "vertical",
-        "contents": [],
-        "backgroundColor": "#CC8800",
-        "paddingAll": "md"
-      },
-      "body": {
-        "type": "box",
-        "layout": "vertical",
+def __init__():
+    # demo userid: U2f7e15e05e4c914d1131b88756d1c39a
+    test_message = {
+        "type": "carousel",
         "contents": [
-          {
-            "type": "text",
-            "size": "lg",
-            "text": "運送一張電腦椅",
-            "wrap": True
-          },
-          {
-            "type": "separator"
-          },
-          {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-              {
-                "type": "text",
-                "text": "需要幫忙開車載一張電腦椅，從 xxx 路送到 xxx 路",
-                "color": "#8C8C8C",
-                "size": "md",
-                "wrap": True
-              }
-            ],
-            "paddingAll": "sm"
-          }
-        ],
-        "spacing": "md",
-        "paddingAll": "xxl"
-      },
-      "footer": {
-        "type": "box",
-        "layout": "vertical",
-        "contents": [
-          {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-              {
-                "type": "box",
-                "layout": "baseline",
-                "contents": [
-                  {
-                    "type": "icon",
-                    "url": "https://imgur.com/C5SBrq6.png",
-                    "position": "absolute"
-                  },
-                  {
-                    "type": "text",
-                    "text": "2020/10/31",
-                    "offsetStart": "20px",
-                    "color": "#8C8C8C",
-                    "size": "xxs"
-                  }
-                ],
-                "margin": "none",
-                "paddingTop": "none"
-              }
-            ]
-          },
-          {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-              {
-                "type": "box",
-                "layout": "baseline",
-                "contents": [
-                  {
-                    "type": "icon",
-                    "url": "https://imgur.com/AFc3Ug0.png",
-                    "position": "absolute"
-                  },
-                  {
-                    "type": "text",
-                    "text": "$150",
-                    "offsetStart": "20px",
-                    "color": "#8C8C8C",
-                    "size": "xxs"
-                  }
-                ],
-                "margin": "none",
-                "paddingTop": "none"
-              }
-            ],
-            "margin": "sm"
-          }
-        ],
-        "paddingAll": "xxl"
-      },
-      "styles": {
-        "footer": {
-          "separator": False
-        }
-      }
-    },
-    {
-      "type": "bubble",
-      "size": "kilo",
-      "hero": {
-        "type": "box",
-        "layout": "vertical",
-        "contents": [],
-        "backgroundColor": "#0088AA",
-        "paddingAll": "md"
-      },
-      "body": {
-        "type": "box",
-        "layout": "vertical",
-        "contents": [
-          {
-            "type": "text",
-            "size": "lg",
-            "text": "高中數學題",
-            "wrap": True
-          },
-          {
-            "type": "separator"
-          },
-          {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-              {
-                "type": "text",
-                "text": "高中數學題求解，請附上解題過程",
-                "color": "#8C8C8C",
-                "size": "md",
-                "wrap": True
-              }
-            ],
-            "paddingAll": "sm"
-          }
-        ],
-        "spacing": "md",
-        "paddingAll": "xl"
-      },
-      "footer": {
-        "type": "box",
-        "layout": "vertical",
-        "contents": [
-          {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-              {
-                "type": "box",
-                "layout": "baseline",
-                "contents": [
-                  {
-                    "type": "icon",
-                    "url": "https://imgur.com/C5SBrq6.png",
-                    "position": "absolute",
-                  },
-                  {
-                    "type": "text",
-                    "text": "2020/10/31",
-                    "offsetStart": "20px",
-                    "color": "#8C8C8C",
-                    "size": "xxs"
-                  }
-                ],
-                "margin": "none",
-                "paddingTop": "none"
-              }
-            ]
-          },
-          {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-              {
-                "type": "box",
-                "layout": "baseline",
-                "contents": [
-                  {
-                    "type": "icon",
-                    "url": "https://imgur.com/AFc3Ug0.png",
-                    "position": "absolute",
-                  },
-                  {
-                    "type": "text",
-                    "text": "$150",
-                    "offsetStart": "20px",
-                    "color": "#8C8C8C",
-                    "size": "xxs"
-                  }
-                ],
-                "margin": "none",
-                "paddingTop": "none"
-              }
-            ],
-            "margin": "sm"
-          }
-        ],
-        "paddingAll": "xl"
-      },
-      "styles": {
-        "footer": {
-          "separator": False
-        }
-      }
+            {
+                "type": "bubble",
+                "size": "kilo",
+                "hero": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [],
+                    "backgroundColor": "#CC8800",
+                    "paddingAll": "md"
+                },
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "size": "lg",
+                            "text": "運送一張電腦椅",
+                            "wrap": True
+                        },
+                        {
+                            "type": "separator"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "需要幫忙開車載一張電腦椅，從 xxx 路送到 xxx 路",
+                                    "color": "#8C8C8C",
+                                    "size": "md",
+                                    "wrap": True
+                                }
+                            ],
+                            "paddingAll": "sm"
+                        }
+                    ],
+                    "spacing": "md",
+                    "paddingAll": "xxl"
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                              {
+                                  "type": "box",
+                                  "layout": "baseline",
+                                  "contents": [
+                                      {
+                                          "type": "icon",
+                                          "url": "https://imgur.com/C5SBrq6.png",
+                                          "position": "absolute"
+                                      },
+                                      {
+                                          "type": "text",
+                                          "text": "2020/10/31",
+                                          "offsetStart": "20px",
+                                          "color": "#8C8C8C",
+                                          "size": "xxs"
+                                      }
+                                  ],
+                                  "margin": "none",
+                                  "paddingTop": "none"
+                              }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                      {
+                                          "type": "icon",
+                                          "url": "https://imgur.com/AFc3Ug0.png",
+                                          "position": "absolute"
+                                      },
+                                        {
+                                          "type": "text",
+                                          "text": "$150",
+                                          "offsetStart": "20px",
+                                          "color": "#8C8C8C",
+                                          "size": "xxs"
+                                      }
+                                    ],
+                                    "margin": "none",
+                                    "paddingTop": "none"
+                                }
+                            ],
+                            "margin": "sm"
+                        }
+                    ],
+                    "paddingAll": "xxl"
+                },
+                "styles": {
+                    "footer": {
+                        "separator": False
+                    }
+                }
+            },
+            {
+                "type": "bubble",
+                "size": "kilo",
+                "hero": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [],
+                    "backgroundColor": "#0088AA",
+                    "paddingAll": "md"
+                },
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "size": "lg",
+                            "text": "高中數學題",
+                            "wrap": True
+                        },
+                        {
+                            "type": "separator"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "高中數學題求解，請附上解題過程",
+                                    "color": "#8C8C8C",
+                                    "size": "md",
+                                    "wrap": True
+                                }
+                            ],
+                            "paddingAll": "sm"
+                        }
+                    ],
+                    "spacing": "md",
+                    "paddingAll": "xl"
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                              {
+                                  "type": "box",
+                                  "layout": "baseline",
+                                  "contents": [
+                                      {
+                                          "type": "icon",
+                                          "url": "https://imgur.com/C5SBrq6.png",
+                                          "position": "absolute",
+                                      },
+                                      {
+                                          "type": "text",
+                                          "text": "2020/10/31",
+                                          "offsetStart": "20px",
+                                          "color": "#8C8C8C",
+                                          "size": "xxs"
+                                      }
+                                  ],
+                                  "margin": "none",
+                                  "paddingTop": "none"
+                              }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                      {
+                                          "type": "icon",
+                                          "url": "https://imgur.com/AFc3Ug0.png",
+                                          "position": "absolute",
+                                      },
+                                        {
+                                          "type": "text",
+                                          "text": "$150",
+                                          "offsetStart": "20px",
+                                          "color": "#8C8C8C",
+                                          "size": "xxs"
+                                      }
+                                    ],
+                                    "margin": "none",
+                                    "paddingTop": "none"
+                                }
+                            ],
+                            "margin": "sm"
+                        }
+                    ],
+                    "paddingAll": "xl"
+                },
+                "styles": {
+                    "footer": {
+                        "separator": False
+                    }
+                }
+            }
+        ]
     }
-  ]
-}
-test_userid = 'U2f7e15e05e4c914d1131b88756d1c39a'
-test_case = {'title':'高中數學題', 'description':'高中數學題求解，請附上解題過程'}
-test_application = {'description':'我會ㄛ 選我選我'}
-test_user = {'phone_number': '0912345678', 'lineid': 'lineid'}
+    test_userid = 'U2f7e15e05e4c914d1131b88756d1c39a'
+    test_case = {'title': '高中數學題', 'description': '高中數學題求解，請附上解題過程'}
+    test_application = {'description': '我會ㄛ 選我選我'}
+    test_user = {'phone_number': '0912345678', 'lineid': 'lineid'}
 
-notify_acceptance(test_userid, test_user, test_case)
-# push_message('U2f7e15e05e4c914d1131b88756d1c39a', FlexSendMessage(alt_text='精選', contents=(test_message)))
-# push_message('U2f7e15e05e4c914d1131b88756d1c39a', TextSendMessage(text='Hello World!'))
+    notify_acceptance(test_userid, test_user, test_case)
+    # push_message('U2f7e15e05e4c914d1131b88756d1c39a', FlexSendMessage(alt_text='精選', contents=(test_message)))
+    # push_message('U2f7e15e05e4c914d1131b88756d1c39a', TextSendMessage(text='Hello World!'))
 
 
 # %%
