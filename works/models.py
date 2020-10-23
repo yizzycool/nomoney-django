@@ -44,7 +44,7 @@ class Application(models.Model):
         ('R', 'reject'),
         ('T', 'TBC'),
     ]
-    caseId = models.ForeignKey(Case, on_delete=models.DO_NOTHING)
+    caseId = models.ForeignKey(Case, on_delete=models.CASCADE)
     employeeId = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     message = models.TextField(default='', blank=True)
     accepted = models.CharField(max_length=1, choices=ACCEPTED, default='T', blank=True)

@@ -8,49 +8,27 @@ from works.models import User, Case, Application
 import json
 from django.template import Context, loader
 from jieba import analyse
+from . import utils 
 
 
-# Create your views here.
+
+# API
 def index(request):
     #template  = loader.get_template('index_template/index.html')
     return HttpResponse('Hello')
 
 
-########################
-# 跟 crud_profile重複
-########################
-"""def get_profile(request):
-    # print(request.body.decode('utf-8'))
-    body = json.loads(request.body.decode('utf-8'))
-    userIdToken = body['userIdToken']
-    obj = User.objects.filter(userId=userIdToken).first()
-    if obj == None:
-        return JsonResponse({'noData':True})
-    data = {
-        'noDate': False,
-        'userId': obj.userId,
-        'displayName': obj.displayName,
-        'image': obj.image,
-        'intro': obj.intro,
-        'gender': obj.gender,
-        'birthday': obj.birthday,
-        'phone': obj.phone,
-        'county': obj.county,
-        'rating': obj.rating,
-        'lineId': obj.lineId,
-    }
-    return JsonResponse(data)
-"""
-
+# API
 def get_history(request):
     body = json.loads(request.body.decode('utf-8'))
     types = body['type']
     if types == 'seek':
-        return get_employee_history(body)
+        return JsonResponse(get_employee_history(body))
     if types == 'provide':
-        return get_employer_history(body)
+        return JsonResponse(get_employer_history(body))
 
 
+# Function
 def get_employee_history(body):
     userIdToken = body['userIdToken']
     # order by ...
@@ -84,13 +62,14 @@ def get_employee_history(body):
         }
         for app in sorted_obj
     ]
-    return JsonResponse({
+    return {
         'count': obj.count(),
         'noData': True if obj.count() == 0 else False,
         'cases': cases,
-    })
+    }
 
 
+# Function
 def get_employer_history(body):
     userIdToken = body['userIdToken']
     # order by ...
@@ -122,13 +101,14 @@ def get_employer_history(body):
         }
         for case in sorted_obj
     ]
-    return JsonResponse({
+    return {
         'count': obj.count(),
         'noData': True if obj.count() == 0 else False,
         'cases': cases,
-    })
+    }
 
 
+# API
 def get_application_by_case_id(request):
     body = json.loads(request.body.decode('utf-8'))
     caseId = body['caseId']
@@ -154,6 +134,7 @@ def get_application_by_case_id(request):
     })
 
 
+# API
 def search_case(request):
     body = json.loads(request.body.decode('utf-8'))
     userIdToken = body['userIdToken']
@@ -212,6 +193,7 @@ def search_case(request):
         })
 
 
+# API
 def get_case_by_case_id(request):
     body = json.loads(request.body.decode('utf-8'))
     caseId = body['caseId']
@@ -246,6 +228,49 @@ def get_case_by_case_id(request):
     })
 
 
+# Function
+def get_crud_profile(obj):
+    return {
+        'noDate': False,
+        'userId': obj.userId,
+        'displayName': obj.displayName,
+        'image': obj.image,
+        'intro': obj.intro,
+        'gender': obj.gender,
+        'birthday': obj.birthday,
+        'phone': obj.phone,
+        'county': obj.county,
+        'rating': obj.rating,
+        'lineId': obj.lineId,
+    }
+    pass
+
+
+# Function
+def put_crud_profile(obj_raw, body):
+    obj = obj_raw
+    if 'displayName' in body:
+        obj.displayName=body['displayName']
+    if 'image' in body:
+        obj.image=body['image']
+    if 'intro' in body:
+        obj.intro=body['intro']
+    if 'gender' in body:
+        obj.gender=body['gender']
+    if 'birthday' in body:
+        obj.birthday=body['birthday']
+    if 'phone' in body:
+        obj.phone=body['phone']
+    if 'contry' in body:
+        obj.county=body['county']
+    if 'rating' in body:
+        obj.rating=body['rating']
+    if 'lineId' in body:
+        obj.lineId=body['lineId']
+    return obj
+
+
+# API
 def crud_profile(request):
     body = json.loads(request.body.decode('utf-8'))
     action = body['action']
@@ -271,37 +296,12 @@ def crud_profile(request):
         if 'lineId' in body:
             obj.lineId=body['lineId']
         obj.save()
-        return JsonResponse({
-            'noDate': False,
-            'userId': obj.userId,
-            'displayName': obj.displayName,
-            'image': obj.image,
-            'intro': obj.intro,
-            'gender': obj.gender,
-            'birthday': obj.birthday,
-            'phone': obj.phone,
-            'county': obj.county,
-            'rating': obj.rating,
-            'lineId': obj.lineId,
-        })
+        return JsonResponse(get_crud_profile(obj))
     elif action == 'read':
         obj = User.objects.filter(userId=userIdToken).first()
         if obj == None:
             return JsonResponse({'noData':True})
-        data = {
-            'noDate': False,
-            'userId': obj.userId,
-            'displayName': obj.displayName,
-            'image': obj.image,
-            'intro': obj.intro,
-            'gender': obj.gender,
-            'birthday': obj.birthday,
-            'phone': obj.phone,
-            'county': obj.county,
-            'rating': obj.rating,
-            'lineId': obj.lineId,
-        }
-        return JsonResponse(data)
+        return JsonResponse(get_crud_profile(obj))
     elif action == 'delete':
         User.object.filter(userId=userIdToken).delete()
         return JsonResponse({'success': True})
@@ -309,14 +309,30 @@ def crud_profile(request):
         return JsonResponse({'noData': True})
 
 
+# Function
+def get_crud_case(obj):
+    return {
+        'noDate': False,
+        'employerId': obj.employerId.userId,
+        'title': obj.title,
+        'text': obj.text,
+        'location': obj.location,
+        'pay': obj.pay,
+        'status': obj.status,
+        'publishTime': obj.publishTime,
+        'modifiedTime': obj.modifiedTime,
+        'caseId': obj.id,
+    }
+
+
 def crud_case(request):
     body = json.loads(request.body.decode('utf-8'))
     action = body['action']
     caseId = body['caseId']
-    if action == 'update' or action =='create':
-        obj, created = Case.objects.update_or_create(id=caseId)
+    if action == 'create':
+        obj = Case()
         if 'employerId' in body:
-            obj.employerId=body['employerId']
+            obj.employerId = User.objects.get(userId=body['employerId'])
         if 'title' in body:
             obj.title=body['title']
         if 'text' in body:
@@ -327,48 +343,61 @@ def crud_case(request):
             obj.pay=body['pay']
         if 'status' in body:
             obj.status=body['status']
-        if 'publishTime' in body:
-            obj.publishTime=body['publishTime']
-        if 'modifiedTime' in body:
-            obj.modifiedTime=body['modifiedTime']
+        localtime = tz.localtime(tz.now())
+        obj.publishTime = localtime
+        obj.modifiedTime = localtime
         obj.save()
-        return JsonResponse({
-            'noDate': False,
-            'employerId': obj.employerId.userId,
-            'title': obj.title,
-            'text': obj.text,
-            'location': obj.location,
-            'pay': obj.pay,
-            'status': obj.status,
-            'publishTime': obj.publishTime,
-            'modifiedTime': obj.modifiedTime,
-            'caseId': obj.id,
-        })
+        return JsonResponse(get_crud_case(obj))
+    elif action == 'update':
+        obj, created = Case.objects.update_or_create(id=caseId)
+        if 'employerId' in body:
+            obj.employerId = User.objects.get(userId=body['employerId'])
+        if 'title' in body:
+            obj.title=body['title']
+        if 'text' in body:
+            obj.text=body['text']
+        if 'location' in body:
+            obj.location=body['location']
+        if 'pay' in body:
+            obj.pay=body['pay']
+        if 'status' in body:
+            obj.status=body['status']
+        obj.modifiedTime = tz.localtime(tz.now())
+        obj.save()
+        return JsonResponse(get_crud_case(obj))
     elif action == 'read':
         obj = Case.objects.filter(id=caseId).first()
         if obj == None:
             return JsonResponse({'noData':True})
-        data = {
-            
-            'noDate': False,
-            'employerId': obj.employerId,
-            'title': obj.title,
-            'text': obj.text,
-            'location': obj.location,
-            'pay': obj.pay,
-            'status': obj.status,
-            'publishTime': obj.publishTime,
-            'modifiedTime': obj.modifiedTime,
-            'caseId': obj.id,
-        }
-        return JsonResponse(data)
+        return JsonResponse(get_crud_case(obj))
     elif action == 'delete':
-        Case.object.filter(id=caseId).delete()
-        return JsonResponse({'success': True})
+        userIdToken = body['userIdToken']
+        Case.objects.filter(id=caseId).delete()
+        cases = get_employer_history({'userIdToken':userIdToken})
+        return JsonResponse({
+            'success': True,
+            'count': cases['count'],
+            'noData': cases['noData'],
+            'cases': cases['cases'], 
+            })
     else:
         return JsonResponse({'noData': True})
 
 
+# Function
+def get_crud_application(obj):
+    return {
+        'noDate': False,
+        'caseId': obj.caseId.id,
+        'employeeId': obj.employeeId.userId,
+        'message': obj.message,
+        'accepted': obj.accepted,
+        'employerRating': obj.employerRating,
+        'employeeRating': obj.employeeRating,
+    }
+
+
+# API
 def crud_application(request):
     body = json.loads(request.body.decode('utf-8'))
     action = body['action']
@@ -389,31 +418,14 @@ def crud_application(request):
         if 'employeeRating' in body:
             obj.employeeRating=body['employeeRating']
         obj.save()
-        return JsonResponse({
-            'noDate': False,
-            'caseId': obj.caseId.id,
-            'employeeId': obj.employeeId.userId,
-            'message': obj.message,
-            'accepted': obj.accepted,
-            'employerRating': obj.employerRating,
-            'employeeRating': obj.employeeRating,
-        })
+        return JsonResponse(get_crud_application(obj))
     elif action == 'read':
         obj = Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId).first()
         if obj == None:
             return JsonResponse({'noData':True})
-        data = {
-            'noDate': False,
-            'caseId': obj.caseId.id,
-            'employeeId': obj.employeeId.userId,
-            'message': obj.message,
-            'accepted': obj.accepted,
-            'employerRating': obj.employerRating,
-            'employeeRating': obj.employeeRating,
-        }
-        return JsonResponse(data)
+        return JsonResponse(get_crud_application(obj))
     elif action == 'delete':
-        Application.object.filter(caseId__id=caseId).filter(employeeId__userId=employeeId).delete()
+        Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId).delete()
         return JsonResponse({'success': True})
     else:
         return JsonResponse({'noData': True})
@@ -430,7 +442,9 @@ def recommanded_cases(userIdToken):
     if user_obj.count() != 1:
         return None
     user_obj = user_obj.first()
-    intro = set(analyse.extract_tags(user_obj.intro))
+    # 用 monpy 取出好的詞彙
+    intro = set(utils.extract_tokens(user_obj.intro))
+    print(intro)
     gender = gender_exclude[user_obj.gender]
     county = user_obj.county
     # 過濾已經關閉的 / 自己發的案件
@@ -443,8 +457,8 @@ def recommanded_cases(userIdToken):
     print(cases_obj)
     cases_score = [0.0 for case in range(cases_obj.count())]
     for idx, case in enumerate(cases_obj):
-        title = set(analyse.extract_tags(case.title))
-        text = set(analyse.extract_tags(case.title))
+        title = set(utils.extract_tokens(case.title))
+        text = set(utils.extract_tokens(case.title))
         location = case.location
         pay = int(case.pay)
         cases_score[idx] += min(len(intro&title) * 2, 9999)
