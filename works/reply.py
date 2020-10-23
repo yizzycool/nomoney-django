@@ -16,7 +16,7 @@ import json
 import os
 import sys
 
-from .reply import recommanded_cases_message
+from .message_objects import recommanded_cases_message
 from .views import recommanded_cases
 
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)

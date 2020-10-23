@@ -373,6 +373,10 @@ def crud_application(request):
             obj.message=body['message']
         if 'accepted' in body:
             obj.accepted=body['accepted']
+            if body['accpeted'] == True:
+                # call line-bot 傳給使用者
+                # coding here ........
+                pass
         if 'employerRating' in body:
             obj.employerRating=body['employerRating']
         if 'employeeRating' in body:
