@@ -156,9 +156,17 @@ def get_application_by_case_id(request):
 
 def search_case(request):
     body = json.loads(request.body.decode('utf-8'))
-    #userId = body['userId']
+    userIdToken = body['userIdToken']
     keyword = body['keyword']
+    print(userIdToken)
     obj = Case.objects.all().order_by('-publishTime')
+    # 過濾掉已關閉的
+    obj = obj.filter(status='O')
+    # 過濾掉自己發的
+    obj = obj.exclude(employerId__userId=userIdToken)
+    # 過濾掉已經應徵的
+    applications = list(set([app.caseId.id for app in Application.objects.filter(employeeId__userId=userIdToken).all()]))
+    obj = obj.exclude(id__in=applications)
     obj_score = []
     offset = int(body['offset'])
     #if 'conditions'
@@ -427,7 +435,14 @@ def recommanded_cases(userIdToken):
     intro = set(analyse.extract_tags(user_obj.intro))
     gender = gender_exclude[user_obj.gender]
     county = user_obj.county
-    cases_obj = Case.objects.filter(status='O').exclude(title__iregex=gender).exclude(text__iregex=gender)
+    # 過濾已經關閉的 / 自己發的案件
+    cases_obj = Case.objects.filter(status='O').exclude(employerId__userId=userIdToken)
+    # 過濾掉已經應徵的
+    applications = list(set([app.caseId.id for app in Application.objects.filter(employeeId__userId=userIdToken).all()]))
+    cases_obj = cases_obj.exclude(id__in=applications)
+    if gender != '':
+        cases_obj.exclude(title__icontains=gender).exclude(text__icontains=gender)
+    print(cases_obj)
     cases_score = [0.0 for case in range(cases_obj.count())]
     for idx, case in enumerate(cases_obj):
         title = set(analyse.extract_tags(case.title))
