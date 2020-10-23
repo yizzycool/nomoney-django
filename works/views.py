@@ -7,6 +7,7 @@ from time import gmtime, strftime
 from works.models import User, Case, Application
 import json
 from django.template import Context, loader
+from jieba import analyse
 
 
 # Create your views here.
@@ -418,14 +419,35 @@ def crud_application(request):
 # API for line-bot
 ######################
 def recommanded_cases(userIdToken):
-    gender_exclude = {'M':'限女', 'F':'限男'}
-    obj = User.objects.filter(userIdToken)
-    if obj.count() != 1:
+    gender_exclude = {'M':'限女', 'F':'限男', 'O':'', '':''}
+    user_obj = User.objects.filter(userIdToken)
+    if user_obj.count() != 1:
         return None
-    obj = obj.first()
-    intro = obj.intro
-    gender = obj.gender
-    birthday = obj.birthday
-    county = obj.county
-    cases = Case.objects.filter()
-    pass
+    user_obj = user_obj.first()
+    intro = set(analyse.extract_tags(user_obj.intro))
+    gender = gender_exclude(user_obj.gender)
+    county = user_obj.county
+    cases_obj = Case.objects.filter(status='O').filter(title__iregex(gender)).filter(text__iregex(gender))
+    cases_score = [0.0 for case in range(cases_obj.count())]
+    for idx, case in enumerate(cases_obj):
+        title = set(analyse.extract_tags(case.title))
+        text = set(analyse.extract_tags(case.title))
+        location = case.location
+        pay = int(case.pay)
+        cases_score[idx] += min(len(intro&title) * 2, 9999)
+        cases_score[idx] += min(len(intro&text), 9999)
+        if county == location:
+            cases_score[idx] += 9999
+        
+    cases = [{
+        'caseId': case.id,
+        'title': case.title,
+        'description': case.text,
+        'pay': case.pay,
+        'publishTime': case.publishTime,
+        'location': case.locaiton,
+        'matchScore': cases_score[idx],
+    } for idx, case in enumerate(cases_obj)
+    ]
+    cases = sorted(cases, key=lambda x: (x['matchScore'], x['publishTime']), reverse=True)
+    return cases
