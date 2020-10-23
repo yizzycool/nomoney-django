@@ -1,4 +1,4 @@
-def acceptance_message(user, case):
+def acceptance_message(case, user):
     title = case['title']
     description = case['description']
     phone_number = user['phone_number']

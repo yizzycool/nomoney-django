@@ -23,9 +23,9 @@ def push_message(userid, messages):
         pass
 
 
-def notify_acceptance(receiverid, user, case):
+def notify_acceptance(receiverid, case, user):
     # 有人需要你的幫忙！
-    message = message_objects.acceptance_message(user, case)
+    message = message_objects.acceptance_message(case, user)
     message_object = FlexSendMessage(alt_text='有人需要你的幫忙！', contents=message)
     push_message(receiverid, message_object)
 
@@ -37,8 +37,7 @@ def notify_application(receiverid, case, application):
     push_message(receiverid, message_object)
 
 
-def __init__():
-    # demo userid: U2f7e15e05e4c914d1131b88756d1c39a
+if __name__=='__main__':
     test_message = {
         "type": "carousel",
         "contents": [
@@ -263,9 +262,12 @@ def __init__():
     test_application = {'description': '我會ㄛ 選我選我'}
     test_user = {'phone_number': '0912345678', 'lineid': 'lineid'}
 
-    notify_acceptance(test_userid, test_user, test_case)
+    print(test_userid)
+
+    notify_acceptance(test_userid, test_case, test_user)
+    notify_application(test_userid, test_case, test_application)
     # push_message('U2f7e15e05e4c914d1131b88756d1c39a', FlexSendMessage(alt_text='精選', contents=(test_message)))
-    # push_message('U2f7e15e05e4c914d1131b88756d1c39a', TextSendMessage(text='Hello World!'))
+    push_message('U2f7e15e05e4c914d1131b88756d1c39a', TextSendMessage(text='Hello World!'))
 
 
 # %%

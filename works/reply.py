@@ -15,7 +15,9 @@ from linebot.models import (
 import json
 import os
 import sys
-import message_objects
+
+from .reply import recommanded_cases_message
+from .views import recommanded_cases
 
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
@@ -50,8 +52,8 @@ def message_text(event):
 
     userid = event.source.userid
 
-    recommanded_cases = {}# recommanded_cases(userid) ########################
-    recommanded_cases_message = message_objects.recommanded_cases_message(recommanded_cases)
+    recommanded_cases = recommanded_cases(userid)
+    recommanded_cases_message = recommanded_cases_message(recommanded_cases)
     line_bot_api.reply_message(
         event.reply_token,
         FlexSendMessage(alt_text = '有人需要你的幫忙！', contents=recommanded_cases_message)
