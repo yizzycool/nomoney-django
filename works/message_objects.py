@@ -385,7 +385,7 @@ def recommanded_cases_message(cases):
                                     },
                                     {
                                         "type": "text",
-                                        "text": pay,
+                                        "text": '$' + str(pay),
                                         "offsetStart": "20px",
                                         "color": "#8C8C8C",
                                         "size": "xxs"
