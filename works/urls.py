@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+form . import reply
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -11,5 +12,6 @@ urlpatterns = [
     path('crud_profile', views.crud_profile, name='crud_profile'),
     path('crud_case', views.crud_case, name='crud_case'),
     path('crud_app', views.crud_application, name='crud_app'),
+    path('callback', reply.callback, name='callback')
 
 ]
