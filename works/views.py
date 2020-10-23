@@ -409,3 +409,19 @@ def crud_application(request):
     pass
 
 
+
+
+######################
+# API for line-bot
+######################
+def recommanded_cases(userIdToken):
+    obj = User.objects.filter(userIdToken)
+    if obj.count() != 1:
+        return None
+    obj = obj.first()
+    intro = obj.intro
+    gender = obj.gender
+    birthday = obj.birthday
+    county = obj.county
+    cases = Case.objects.filter
+    pass
