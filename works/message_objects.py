@@ -81,7 +81,7 @@ def acceptance_message(case, user):
                     "margin": "md",
                     "wrap": True,
                     "color": "#AAAAAA",
-                    "maxLines": 2
+                    "maxLines": 3
                 },
                 {
                     "type": "separator",
@@ -274,7 +274,7 @@ def application_message(case, application):
                             "wrap": True,
                             "color": "#AAAAAA",
                             "offsetStart": "xs",
-                            "maxLines": 2
+                            "maxLines": 3
                         }
                     ],
                     "margin": "lg",
@@ -331,7 +331,9 @@ def recommanded_cases_message(cases):
                                 "text": description,
                                 "color": "#8C8C8C",
                                 "size": "md",
-                                "wrap": True
+                                "wrap": True,
+                                "maxLines": 3,
+                                "gravity": "center"
                             }
                         ],
                         "paddingAll": "sm"
