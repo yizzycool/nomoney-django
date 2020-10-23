@@ -382,7 +382,7 @@ def recommanded_cases_message(cases):
                                 "contents": [
                                     {
                                         "type": "icon",
-                                        "url": "https://imgur.com/AFc3Ug0.png",
+                                        "url": "https://imgur.com/8cV7aKc.png",
                                         "position": "absolute"
                                     },
                                     {
