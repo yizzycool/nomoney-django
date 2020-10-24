@@ -124,6 +124,8 @@ def get_application_by_case_id(body):
             'accepted': obj.accepted,
             'employerRating': obj.employeeRating,
             'employerRating': obj.employerRating,
+            'phone': obj.employeeId.phone ,
+            'lineId': obj.employeeId.lineId,
         }
         for obj in child_obj
     ]
@@ -405,7 +407,12 @@ def crud_application(request):
     action = body['action']
     caseId = body['caseId']
     employeeId = body['employeeId']
+    print(action, caseId, employeeId)
     if action == 'create':
+        if Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId):
+            return JsonResponse({
+                'error': 'duplicated'
+            })
         obj = Application()
         obj.caseId = Case.objects.get(id = caseId)
         obj.employeeId = User.objects.get(userId = employeeId)
@@ -413,10 +420,10 @@ def crud_application(request):
             obj.message=body['message']
         obj.save()
         # call line bot to send notification
-        """try:
+        try:
             call_linebot_notify_application(obj.caseId.employerId.userId, obj)
         except:
-            pass"""
+            pass
         return JsonResponse(get_crud_application(obj))
     # "UPDATE" is Only for employer
     if action == 'update':
@@ -462,7 +469,6 @@ def recommanded_cases(userIdToken):
     user_obj = user_obj.first()
     # 用 monpy 取出好的詞彙
     intro = set(utils.extract_tokens(user_obj.intro))
-    print(intro)
     gender = gender_exclude[user_obj.gender]
     county = user_obj.county
     # 過濾已經關閉的 / 自己發的案件
