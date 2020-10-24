@@ -398,6 +398,15 @@ def crud_case(request):
         return JsonResponse(get_crud_case(obj))
     elif action == 'delete':
         userIdToken = body['userIdToken']
+        # 先判斷 hash tag 需不需要刪除
+        for mid in Case.objects.filter(id=caseId).first().middleagent_set.all():
+            hash_obj = Hashtag.objects.filter(id=mid.hashtag.id).first()
+            if hash_obj:
+                if hash_obj.count - 1 == 0:
+                    hash_obj.delete()
+                else:
+                    hash_obj.count -= 1
+                    hash_obj.save()
         Case.objects.filter(id=caseId).delete()
         cases = get_employer_history({'userIdToken':userIdToken})
         return JsonResponse({
