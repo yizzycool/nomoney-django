@@ -4,7 +4,7 @@ from django.utils import timezone as tz
 import os
 import sqlite3
 from time import gmtime, strftime
-from works.models import User, Case, Application
+from works.models import User, Case, Application, Hashtag, MiddleAgent
 import json
 from django.template import Context, loader
 from jieba import analyse
@@ -178,10 +178,16 @@ def search_case(request):
     body = json.loads(request.body.decode('utf-8'))
     userIdToken = body['userIdToken']
     keyword = body['keyword']
-    # New Func: hashtag
-    if 'hashtag' in body:
-        pass
     obj = Case.objects.all().order_by('-publishTime')
+    # New Func: hashtags
+    if len(keyword) != 0 and '#' in keyword:
+        tags = [tok[1:] for tok in keyword.split() if tok[0] == '#']
+        matchCases = []
+        for hash_obj in Hashtag.objects.all().filter(tag__in=[tags]):
+            for mid in hash_obj.middleagent_set.all():
+                matchCases.append(mid.case.id)
+        matchCases = list(set(matchCases))
+        obj = obj.filter(id__in=[matchCases])
     # 過濾掉已關閉的
     obj = obj.filter(status='O')
     # 過濾掉自己發的
@@ -194,12 +200,17 @@ def search_case(request):
     #if 'conditions'
     if 'conditions' in body:
         for key, value in body['conditions'].items():
-            if key == 'location':
-                obj = obj.filter(location__icontains=value)
+            if key == 'location' and value != '':
+                locationCounty, locationDistrict = value.split('/')
+                if locationCounty == '全部': pass
+                elif locationDistrict == '全部':
+                    obj = obj.filter(location__istartswith=locationCounty) | obj.filter(location__istartswith='全部')
+                else:
+                    obj = obj.filter(location=value) | obj.filter(location=locationCounty+'/全部') | obj.filter(location__istartswith='全部')
             if key == 'minpay':
-                obj = obj.filter(pay__gt=int(value))
+                obj = obj.filter(pay__gte=int(value))
             if key == 'maxpay':
-                obj = obj.filter(pay__lt=int(value))
+                obj = obj.filter(pay__lte=int(value))
     if keyword != '':
         title_obj = obj.filter(title__icontains=keyword)
         if title_obj.count() != 0:
@@ -356,10 +367,13 @@ def crud_case(request):
                     hash_obj.save()
                     middle_agent = MiddleAgent(case = obj, hashtag = hash_obj)
                 else:
+                    hash_obj.count += 1
+                    hash_obj.save()
                     middle_obj = MiddleAgent.objects.filter(case__id = obj.id, hashtag__tag = keyword).first()
                     if middle_obj == None:
                         middle_obj = MiddleAgent(case = obj, hashtag = hash_obj)
                         middle_obj.save()
+        return JsonResponse(get_crud_case(obj))
     elif action == 'read':
         obj = Case.objects.filter(id=caseId).first()
         if obj == None:
