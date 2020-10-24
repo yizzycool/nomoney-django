@@ -9,7 +9,7 @@ import json
 from django.template import Context, loader
 from jieba import analyse
 from . import utils 
-
+from .push import notify_acceptance, notify_application
 
 
 # API
@@ -108,9 +108,9 @@ def get_employer_history(body):
     }
 
 
-# API
-def get_application_by_case_id(request):
-    body = json.loads(request.body.decode('utf-8'))
+# Function
+def get_application_by_case_id(body):
+    #body = json.loads(request.body.decode('utf-8'))
     caseId = body['caseId']
     obj = Case.objects.filter(id=caseId).first()
     if obj == None: return JsonResponse({'noData':True})
@@ -127,11 +127,48 @@ def get_application_by_case_id(request):
         }
         for obj in child_obj
     ]
-    return JsonResponse({
+    return {
         'count': child_obj.count(),
-        'noData': True if child_obj.count() == 0 else False,
-        'employees': applications,
-    })
+        'applications': applications,
+    }
+
+
+# API
+def get_case_by_case_id(request):
+    body = json.loads(request.body.decode('utf-8'))
+    caseId = body['caseId']
+    userIdToken = body['userIdToken']
+    obj = Case.objects.filter(id=caseId)
+    if obj.count() != 1: return JsonResponse({'noData': True})
+    obj = obj.first()
+    isOwner = True if userIdToken == obj.employerId.userId else False
+    applications = get_application_by_case_id(body)
+    case = {
+        'noData': True,
+        'employer':{
+            #------ Employer part ------#
+            'employerId': obj.employerId.userId,
+            'displayName': obj.employerId.displayName,
+            'image': obj.employerId.image,
+            'gender': obj.employerId.gender,
+            'phone': obj.employerId.phone,
+            'rating': obj.employerId.rating,
+            'lineId': obj.employerId.lineId,
+        },
+        'title': obj.title,
+        'text': obj.text,
+        'location': obj.location,
+        'pay': obj.pay,
+        'status': obj.status,
+        'publishTime': tz.localtime(obj.publishTime),
+        'modifiedTime': tz.localtime(obj.modifiedTime),
+        'caseId': obj.id,
+        'isOwner': isOwner,
+        #------ Employee Data ------#
+        'count': applications['count'],
+        'applications':applications['applications'],
+    }
+    return JsonResponse(case)
 
 
 # API
@@ -191,41 +228,6 @@ def search_case(request):
             'offset': offset,
             'cases': cases,
         })
-
-
-# API
-def get_case_by_case_id(request):
-    body = json.loads(request.body.decode('utf-8'))
-    caseId = body['caseId']
-    obj = Case.objects.filter(id=caseId)
-    cases = [
-        {
-            'employer':{
-                #------ Employer part ------#
-                'employerId': case.employerId.userId,
-                'displayName': case.employerId.displayName,
-                'image': case.employerId.image,
-                'gender': case.employerId.gender,
-                'phone': case.employerId.phone,
-                'rating': case.employerId.rating,
-                'lineId': case.employerId.lineId,
-            },
-            'title': case.title,
-            'text': case.text,
-            'location': case.location,
-            'pay': case.pay,
-            'status': case.status,
-            'publishTime': tz.localtime(case.publishTime),
-            'modifiedTime': tz.localtime(case.modifiedTime),
-            'caseId': case.id,
-        }
-        for case in obj
-    ]
-    return JsonResponse({
-        'count': obj.count(),
-        'noData': True if obj.count() == 0 else False,
-        'cases': cases,
-    })
 
 
 # Function
