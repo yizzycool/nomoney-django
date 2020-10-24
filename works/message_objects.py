@@ -44,7 +44,7 @@ def acceptance_message(case, user):
                                     "contents": [
                                         {
                                             "type": "text",
-                                            "text": "有人需要你的幫忙！",
+                                            "text": "有人接受了你的幫助！",
                                             "size": "xl",
                                             "color": "#ffffff"
                                         }
@@ -172,7 +172,7 @@ def acceptance_message(case, user):
 def application_message(case, application):
     title = case['title']
     description = application['description']
-    image = 'https://imgur.com/ac7lLvz.png'
+    image = application['image'] #'https://imgur.com/ac7lLvz.png'
     message = {
         "type": "bubble",
         "body": {

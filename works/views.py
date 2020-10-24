@@ -396,6 +396,7 @@ def get_crud_application(obj):
         'accepted': obj.accepted,
         'employerRating': obj.employerRating,
         'employeeRating': obj.employeeRating,
+        'appId': obj.id,
     }
 
 
@@ -411,9 +412,12 @@ def crud_application(request):
         obj.employeeId = User.objects.get(userId = employeeId)
         if 'message' in body:
             obj.message=body['message']
+        obj.save()
+        # call line bot to send notification
+        call_linebot_notify_application(obj.caseId.employerId.userId, obj)
         return JsonResponse(get_crud_application(obj))
-    elif action == 'update':
-        print('UPDATE')
+    # "UPDATE" is Only for employer
+    if action == 'update':
         obj = Application.objects.filter(caseId__id=caseId, employeeId__userId=employeeId).first()
         if obj == None:
             return JsonResponse({'noData':True})
@@ -421,21 +425,21 @@ def crud_application(request):
             obj.message=body['message']
         if 'accepted' in body:
             obj.accepted=body['accepted']
-            if body['accepted'] == True:
-                print()
+            if body['accepted'] == "A":
+                # call line bot to send notification
                 call_linebot_notify_acceptance(employeeId, obj)
         if 'employerRating' in body:
             obj.employerRating=body['employerRating']
         if 'employeeRating' in body:
             obj.employeeRating=body['employeeRating']
         obj.save()
-        return JsonResponse(get_crud_application(obj))
-    elif action == 'read':
+        return get_case_by_case_id(request)
+    if action == 'read':
         obj = Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId).first()
         if obj == None:
             return JsonResponse({'noData':True})
         return JsonResponse(get_crud_application(obj))
-    elif action == 'delete':
+    if action == 'delete':
         Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId).delete()
         return JsonResponse({'success': True})
     else:
@@ -501,4 +505,18 @@ def call_linebot_notify_acceptance(employeeId, obj):
         'lineid': obj.caseId.employerId.lineId,
     }
     notify_acceptance(employeeId, case, user)
+    return
+
+
+# Function
+def call_linebot_notify_application(employeeId, obj):
+    # call line-bot notify_application
+    case = {
+        'title': obj.caseId.title,
+    }
+    application = {
+        'description': obj.message,
+        'image': obj.employeeId.image,
+    }
+    notify_application(employeeId, case, application)
     return
