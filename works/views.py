@@ -441,10 +441,10 @@ def crud_application(request):
             obj.message=body['message']
         obj.save()
         # call line bot to send notification
-        """try:
+        try:
             call_linebot_notify_application(obj.caseId.employerId.userId, obj)
         except:
-            pass"""
+            pass
         return JsonResponse(get_crud_application(obj))
     # "UPDATE" is Only for employer
     if action == 'update':
@@ -457,10 +457,10 @@ def crud_application(request):
             obj.accepted=body['accepted']
             if body['accepted'] == "A":
                 # call line bot to send notification
-                """try:
+                try:
                     call_linebot_notify_acceptance(employeeId, obj)
                 except:
-                    pass"""
+                    pass
         if 'employerRating' in body:
             obj.employerRating=body['employerRating']
         if 'employeeRating' in body:
@@ -518,13 +518,14 @@ def recommanded_cases(userIdToken):
         'publishTime': case.publishTime,
         'location': case.location,
         'matchScore': cases_score[idx],
+        'url': 'https://liff.line.me/1655089903-YawqnnaN/case?caseId='+str(case.id) ,
     } for idx, case in enumerate(cases_obj)
     ]
     cases = sorted(cases, key=lambda x: (x['matchScore'], x['publishTime']), reverse=True)[:5]
     return cases
 
 
-# Function
+# Function  ->  curd_application : 'update'
 def call_linebot_notify_acceptance(employeeId, obj):
     # call line-bot notify_acceptance
     case = {
@@ -540,7 +541,7 @@ def call_linebot_notify_acceptance(employeeId, obj):
     return
 
 
-# Function
+# Function  ->  curd_application : 'create'
 def call_linebot_notify_application(employeeId, obj):
     # call line-bot notify_application
     case = {
