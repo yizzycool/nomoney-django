@@ -34,7 +34,9 @@ def callback(request):
 
     # get request body as text
     body = request.body.decode('utf-8')
+    
     # print(body)
+
 
     # handle webhook body
 

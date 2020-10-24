@@ -4,7 +4,7 @@ from django.utils import timezone as tz
 import os
 import sqlite3
 from time import gmtime, strftime
-from works.models import User, Case, Application
+from works.models import User, Case, Application, Hashtag, MiddleAgent
 import json
 from django.template import Context, loader
 from jieba import analyse
@@ -177,37 +177,68 @@ def get_case_by_case_id(request):
 def search_case(request):
     body = json.loads(request.body.decode('utf-8'))
     userIdToken = body['userIdToken']
-    keyword = body['keyword']
+    keyword = body['keyword'].split()
+    offset = int(body['offset'])
     obj = Case.objects.all().order_by('-publishTime')
     # 過濾掉已關閉的
     obj = obj.filter(status='O')
     # 過濾掉自己發的
     obj = obj.exclude(employerId__userId=userIdToken)
-    # 過濾掉已經應徵的
-    applications = list(set([app.caseId.id for app in Application.objects.filter(employeeId__userId=userIdToken).all()]))
-    obj = obj.exclude(id__in=applications)
-    obj_score = []
-    offset = int(body['offset'])
-    #if 'conditions'
+    # If condition
     if 'conditions' in body:
         for key, value in body['conditions'].items():
-            if key == 'location':
-                obj = obj.filter(location__icontains=value)
+            if key == 'location' and value != '':
+                locationCounty, locationDistrict = value.split('/')
+                if locationCounty == '全部': pass
+                elif locationDistrict == '全部':
+                    obj = obj.filter(location__istartswith=locationCounty) | obj.filter(location__istartswith='全部')
+                else:
+                    obj = obj.filter(location=value) | obj.filter(location=locationCounty+'/全部') | obj.filter(location__istartswith='全部')
             if key == 'minpay':
-                obj = obj.filter(pay__gt=int(value))
+                obj = obj.filter(pay__gte=int(value))
             if key == 'maxpay':
-                obj = obj.filter(pay__lt=int(value))
-    if keyword != '':
-        title_obj = obj.filter(title__icontains=keyword)
-        if title_obj.count() != 0:
-            obj = title_obj
-        else:
-            obj = obj.filter(text__icontains=keyword)
+                obj = obj.filter(pay__lte=int(value))
     if obj.count() == 0:
-        return JsonResponse({'noData':True})
+        return JsonResponse({'noData': True})
+    # New Func: hashtags
+    if len(keyword) != 0:
+        tags = [tok[1:] for tok in keyword if tok[0] == '#']
+        keyword = [tok for tok in keyword if tok[0] != '#']
+        obj_score = [0.0 for _ in range(obj.count())]
+        for idx, case in enumerate(obj):
+            case_tags = set([mid.hashtag.tag for mid in case.middleagent_set.all()])
+            obj_score[idx] += len(set(tags)&case_tags) * 100
+            title = set(utils.extract_tokens(case.title))
+            text = set(utils.extract_tokens(case.text))
+            obj_score[idx] += len(set(keyword)&title) * 2
+            obj_score[idx] += len(set(keyword)&text)
+        cases = [
+            {
+                'matchScore' : obj_score[idx],
+                'caseId': case.id,
+                'employerId': case.employerId.userId,
+                'displayName': case.employerId.displayName,
+                'title': case.title,
+                'text': case.text,
+                'location': case.location,
+                'pay': case.pay,
+                'status': case.status,
+                'publishTime': tz.localtime(case.publishTime),
+                'modifiedTime': tz.localtime(case.modifiedTime),
+                'hashtag': [ mid_obj.hashtag.tag for mid_obj in case.middleagent_set.all() ]
+            }
+            for idx, case in enumerate(obj)
+        ]
+        cases = list(filter(lambda x: x['matchScore'] > 0, cases))
+        if len(cases) == 0: return JsonResponse({ 'noData': True })
+        cases = sorted(cases, key=lambda x: x['matchScore'], reverse=True)
+        return JsonResponse({
+            'count': len(cases),
+            'noData': False,
+            'offset': offset,
+            'cases': cases[offset:offset+10],
+        })
     else:
-        total_match = obj.count()
-        obj = obj[offset:offset+10]
         cases = [
             {
                 'caseId': case.id,
@@ -220,21 +251,22 @@ def search_case(request):
                 'status': case.status,
                 'publishTime': tz.localtime(case.publishTime),
                 'modifiedTime': tz.localtime(case.modifiedTime),
+                'hashtag': [ mid_obj.hashtag.tag for mid_obj in case.middleagent_set.all() ]
             }
             for case in obj
         ]
         return JsonResponse({
-            'count': total_match,
-            'noData': True if obj.count() == 0 else False,
+            'count': len(cases),
+            'noData': False,
             'offset': offset,
-            'cases': cases,
+            'cases': cases[offset:offset+10],
         })
 
 
 # Function
 def get_crud_profile(obj):
     return {
-        'noDate': False,
+        'noData': False,
         'userId': obj.userId,
         'displayName': obj.displayName,
         'image': obj.image,
@@ -246,31 +278,6 @@ def get_crud_profile(obj):
         'rating': obj.rating,
         'lineId': obj.lineId,
     }
-    pass
-
-
-# Function
-def put_crud_profile(obj_raw, body):
-    obj = obj_raw
-    if 'displayName' in body:
-        obj.displayName=body['displayName']
-    if 'image' in body:
-        obj.image=body['image']
-    if 'intro' in body:
-        obj.intro=body['intro']
-    if 'gender' in body:
-        obj.gender=body['gender']
-    if 'birthday' in body:
-        obj.birthday=body['birthday']
-    if 'phone' in body:
-        obj.phone=body['phone']
-    if 'contry' in body:
-        obj.county=body['county']
-    if 'rating' in body:
-        obj.rating=body['rating']
-    if 'lineId' in body:
-        obj.lineId=body['lineId']
-    return obj
 
 
 # API
@@ -278,8 +285,15 @@ def crud_profile(request):
     body = json.loads(request.body.decode('utf-8'))
     action = body['action']
     userIdToken = body['userIdToken']
-    if action == 'update' or action =='create':
-        obj, created = User.objects.update_or_create(userId=userIdToken)
+    isNewUser = False
+    if action == 'create' or action == 'update':
+        if User.objects.filter(userId=userIdToken).count() == 0:
+            obj = User(userId=userIdToken)
+            isNewUser = True
+        else:
+            obj = User.objects.get(userId=userIdToken)
+        if action == 'create' and not isNewUser:
+            return JsonResponse(get_crud_profile(obj))
         if 'displayName' in body:
             obj.displayName=body['displayName']
         if 'image' in body:
@@ -292,7 +306,7 @@ def crud_profile(request):
             obj.birthday=body['birthday']
         if 'phone' in body:
             obj.phone=body['phone']
-        if 'contry' in body:
+        if 'county' in body:
             obj.county=body['county']
         if 'rating' in body:
             obj.rating=body['rating']
@@ -315,7 +329,7 @@ def crud_profile(request):
 # Function
 def get_crud_case(obj):
     return {
-        'noDate': False,
+        'noData': False,
         'employerId': obj.employerId.userId,
         'title': obj.title,
         'text': obj.text,
@@ -325,6 +339,9 @@ def get_crud_case(obj):
         'publishTime': obj.publishTime,
         'modifiedTime': obj.modifiedTime,
         'caseId': obj.id,
+        'hashtag': [ 
+            mid_obj.hashtag.tag for mid_obj in obj.middleagent_set.all()
+        ]
     }
 
 
@@ -334,39 +351,45 @@ def crud_case(request):
     caseId = body['caseId']
     if action == 'create':
         obj = Case()
-        if 'employerId' in body:
-            obj.employerId = User.objects.get(userId=body['employerId'])
-        if 'title' in body:
-            obj.title=body['title']
-        if 'text' in body:
-            obj.text=body['text']
-        if 'location' in body:
-            obj.location=body['location']
-        if 'pay' in body:
-            obj.pay=body['pay']
-        if 'status' in body:
-            obj.status=body['status']
         localtime = tz.localtime(tz.now())
         obj.publishTime = localtime
         obj.modifiedTime = localtime
-        obj.save()
-        return JsonResponse(get_crud_case(obj))
     elif action == 'update':
         obj, created = Case.objects.update_or_create(id=caseId)
+        obj.modifiedTime = tz.localtime(tz.now())
+    if action == 'create' or action == 'update':
         if 'employerId' in body:
             obj.employerId = User.objects.get(userId=body['employerId'])
         if 'title' in body:
-            obj.title=body['title']
+            obj.title = body['title']
         if 'text' in body:
-            obj.text=body['text']
+            obj.text = body['text']
         if 'location' in body:
-            obj.location=body['location']
+            obj.location = body['location']
         if 'pay' in body:
-            obj.pay=body['pay']
+            obj.pay = body['pay']
         if 'status' in body:
-            obj.status=body['status']
-        obj.modifiedTime = tz.localtime(tz.now())
+            obj.status = body['status']
         obj.save()
+        # New func: add keywords as hashtag
+        if 'title' in body or 'text' in body:
+            content = obj.title + '\n' + obj.text
+            tok_pos = utils.extract_tokens_pos(content)
+            keywords = utils.chi_square_test(tok_pos)
+            for keyword, _, _ in keywords:
+                # save hash tag here
+                hash_obj = Hashtag.objects.filter(tag = keyword).first()
+                if hash_obj == None:
+                    hash_obj = Hashtag(tag = keyword, count = 1)
+                    hash_obj.save()
+                    middle_agent = MiddleAgent(case = obj, hashtag = hash_obj)
+                else:
+                    hash_obj.count += 1
+                    hash_obj.save()
+                    middle_obj = MiddleAgent.objects.filter(case__id = obj.id, hashtag__tag = keyword).first()
+                    if middle_obj == None:
+                        middle_obj = MiddleAgent(case = obj, hashtag = hash_obj)
+                        middle_obj.save()
         return JsonResponse(get_crud_case(obj))
     elif action == 'read':
         obj = Case.objects.filter(id=caseId).first()
@@ -390,14 +413,13 @@ def crud_case(request):
 # Function
 def get_crud_application(obj):
     return {
-        'noDate': False,
+        'noData': False,
         'caseId': obj.caseId.id,
         'employeeId': obj.employeeId.userId,
         'message': obj.message,
         'accepted': obj.accepted,
         'employerRating': obj.employerRating,
         'employeeRating': obj.employeeRating,
-        'appId': obj.id,
     }
 
 
@@ -407,9 +429,8 @@ def crud_application(request):
     action = body['action']
     caseId = body['caseId']
     employeeId = body['employeeId']
-    print(action, caseId, employeeId)
     if action == 'create':
-        if Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId):
+        if Application.objects.filter(caseId__id=caseId, employeeId__userId=employeeId):
             return JsonResponse({
                 'error': 'duplicated'
             })
@@ -436,10 +457,10 @@ def crud_application(request):
             obj.accepted=body['accepted']
             if body['accepted'] == "A":
                 # call line bot to send notification
-                """try:
+                try:
                     call_linebot_notify_acceptance(employeeId, obj)
                 except:
-                    pass"""
+                    pass
         if 'employerRating' in body:
             obj.employerRating=body['employerRating']
         if 'employeeRating' in body:
@@ -478,11 +499,10 @@ def recommanded_cases(userIdToken):
     cases_obj = cases_obj.exclude(id__in=applications)
     if gender != '':
         cases_obj.exclude(title__icontains=gender).exclude(text__icontains=gender)
-    print(cases_obj)
     cases_score = [0.0 for case in range(cases_obj.count())]
     for idx, case in enumerate(cases_obj):
         title = set(utils.extract_tokens(case.title))
-        text = set(utils.extract_tokens(case.title))
+        text = set(utils.extract_tokens(case.text))
         location = case.location
         pay = int(case.pay)
         cases_score[idx] += min(len(intro&title) * 2, 9999)
@@ -498,13 +518,14 @@ def recommanded_cases(userIdToken):
         'publishTime': case.publishTime,
         'location': case.location,
         'matchScore': cases_score[idx],
+        'url': 'https://liff.line.me/1655089903-YawqnnaN/case?caseId='+str(case.id) ,
     } for idx, case in enumerate(cases_obj)
-    ][:5]
-    cases = sorted(cases, key=lambda x: (x['matchScore'], x['publishTime']), reverse=True)
+    ]
+    cases = sorted(cases, key=lambda x: (x['matchScore'], x['publishTime']), reverse=True)[:5]
     return cases
 
 
-# Function
+# Function  ->  curd_application : 'update'
 def call_linebot_notify_acceptance(employeeId, obj):
     # call line-bot notify_acceptance
     case = {
@@ -520,7 +541,7 @@ def call_linebot_notify_acceptance(employeeId, obj):
     return
 
 
-# Function
+# Function  ->  curd_application : 'create'
 def call_linebot_notify_application(employeeId, obj):
     # call line-bot notify_application
     case = {
