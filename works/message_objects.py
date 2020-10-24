@@ -3,6 +3,7 @@ def acceptance_message(case, user):
     description = case['description']
     phone_number = user['phone_number']
     lineid = user['lineid']
+    url = case['url']
     message = {
         "type": "bubble",
         "body": {
@@ -10,25 +11,61 @@ def acceptance_message(case, user):
             "layout": "vertical",
             "contents": [
                 {
-                    "type": "image",
-                    "url": "https://images.pexels.com/photos/1310532/pexels-photo-1310532.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-                    "aspectMode": "cover",
-                    "aspectRatio": "1.6:1",
-                    "gravity": "top",
-                    "align": "start",
-                    "size": "full"
-                },
-                {
                     "type": "box",
                     "layout": "vertical",
-                    "contents": [],
-                    "position": "absolute",
-                    "backgroundColor": "#00000055",
-                    "width": "100%",
-                    "height": "100%",
-                    "offsetBottom": "0px",
-                    "offsetStart": "0px",
-                    "offsetEnd": "0px"
+                    "contents": [
+                        {
+                            "type": "image",
+                            "url": "https://images.pexels.com/photos/1310532/pexels-photo-1310532.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
+                            "aspectMode": "cover",
+                            "aspectRatio": "1.6:1",
+                            "gravity": "top",
+                            "align": "start",
+                            "size": "full"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [],
+                            "position": "absolute",
+                            "backgroundColor": "#00000055",
+                            "width": "100%",
+                            "height": "100%",
+                            "offsetBottom": "0px",
+                            "offsetStart": "0px",
+                            "offsetEnd": "0px"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "contents": [
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "有人接受了你的幫助！",
+                                                    "size": "xl",
+                                                    "color": "#ffffff"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "spacing": "xs"
+                                }
+                            ],
+                            "position": "absolute",
+                            "offsetBottom": "0px",
+                            "offsetStart": "0px",
+                            "offsetEnd": "0px",
+                            "paddingAll": "20px"
+                        }
+                    ]
                 },
                 {
                     "type": "box",
@@ -39,26 +76,104 @@ def acceptance_message(case, user):
                             "layout": "vertical",
                             "contents": [
                                 {
+                                    "type": "text",
+                                    "text": title,
+                                    "weight": "regular",
+                                    "size": "lg",
+                                    "margin": "xs"
+                                },
+                                {
+                                    "type": "text",
+                                    "text": description,
+                                    "size": "sm",
+                                    "margin": "md",
+                                    "wrap": True,
+                                    "color": "#AAAAAA",
+                                    "maxLines": 3
+                                },
+                                {
+                                    "type": "separator",
+                                    "margin": "lg"
+                                },
+                                {
+                                    "type": "text",
+                                    "text": "聯絡資訊",
+                                    "margin": "xl",
+                                    "size": "lg",
+                                    "contents": []
+                                },
+                                {
                                     "type": "box",
-                                    "layout": "horizontal",
+                                    "layout": "vertical",
                                     "contents": [
                                         {
-                                            "type": "text",
-                                            "text": "有人接受了你的幫助！",
-                                            "size": "xl",
-                                            "color": "#ffffff"
+                                            "type": "box",
+                                            "layout": "baseline",
+                                            "contents": [
+                                                {
+                                                    "type": "icon",
+                                                    "margin": "none",
+                                                    "position": "absolute",
+                                                    "url": "https://imgur.com/10x7MDi.png"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": phone_number,
+                                                    "margin": "md",
+                                                    "size": "sm",
+                                                    "offsetStart": "xl",
+                                                    "color": "#496596ff"
+                                                }
+                                            ],
+                                            "margin": "md"
                                         }
-                                    ]
+                                    ],
+                                    "paddingTop": "sm",
+                                    "paddingBottom": "md",
+                                    "action": {
+                                        "type": "uri",
+                                        "label": "action",
+                                        "uri": "tel:0912345678"
+                                    }
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "contents": [
+                                        {
+                                            "type": "box",
+                                            "layout": "baseline",
+                                            "contents": [
+                                                {
+                                                    "type": "icon",
+                                                    "url": "https://imgur.com/7wQMu5i.png",
+                                                    "position": "absolute"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": lineid,
+                                                    "margin": "md",
+                                                    "size": "sm",
+                                                    "offsetStart": "xl",
+                                                    "color": "#496596ff"
+                                                }
+                                            ],
+                                            "margin": "md"
+                                        }
+                                    ],
+                                    "paddingTop": "xs",
+                                    "paddingBottom": "md",
+                                    "action": {
+                                        "type": "uri",
+                                        "label": "action",
+                                        "uri": "https://line.me/R/ti/p/~lineid"
+                                    }
                                 }
                             ],
-                            "spacing": "xs"
+                            "backgroundColor": "#00000000",
+                            "paddingAll": "20px"
                         }
-                    ],
-                    "position": "absolute",
-                    "offsetBottom": "0px",
-                    "offsetStart": "0px",
-                    "offsetEnd": "0px",
-                    "paddingAll": "20px"
+                    ]
                 }
             ],
             "paddingAll": "0px"
@@ -68,102 +183,20 @@ def acceptance_message(case, user):
             "layout": "vertical",
             "contents": [
                 {
-                    "type": "text",
-                    "text": title,
-                    "weight": "regular",
-                    "size": "lg",
-                    "margin": "xs"
-                },
-                {
-                    "type": "text",
-                    "text": description,
-                    "size": "sm",
-                    "margin": "md",
-                    "wrap": True,
-                    "color": "#AAAAAA",
-                    "maxLines": 3
-                },
-                {
-                    "type": "separator",
-                    "margin": "lg"
-                },
-                {
-                    "type": "text",
-                    "text": "聯絡資訊",
-                    "margin": "xl",
-                    "size": "lg",
-                    "contents": []
-                },
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "box",
-                            "layout": "baseline",
-                            "contents": [
-                                {
-                                    "type": "icon",
-                                    "margin": "none",
-                                    "position": "absolute",
-                                    "url": "https://imgur.com/10x7MDi.png"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": phone_number,
-                                    "margin": "md",
-                                    "size": "sm",
-                                    "offsetStart": "xl",
-                                    "color": "#000099"
-                                }
-                            ],
-                            "margin": "md"
-                        }
-                    ],
-                    "paddingTop": "sm",
-                    "paddingBottom": "md",
+                    "type": "button",
                     "action": {
                         "type": "uri",
-                        "label": "action",
-                        "uri": "tel:" + phone_number
-                    }
-                },
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "box",
-                            "layout": "baseline",
-                            "contents": [
-                                {
-                                    "type": "icon",
-                                    "url": "https://imgur.com/7wQMu5i.png",
-                                    "position": "absolute"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": lineid,
-                                    "margin": "md",
-                                    "size": "sm",
-                                    "offsetStart": "xl",
-                                    "color": "#000099"
-                                }
-                            ],
-                            "margin": "md"
-                        }
-                    ],
-                    "paddingTop": "xs",
-                    "paddingBottom": "md",
-                    "action": {
-                        "type": "uri",
-                        "label": "action",
-                        "uri": "https://line.me/R/ti/p/~" + lineid
-                    }
+                        "label": "詳細資訊",
+                        "uri": url
+                    },
+                    "height": "sm"
                 }
-            ],
-            "backgroundColor": "#00000000",
-            "paddingAll": "20px"
+            ]
+        },
+        "styles": {
+            "footer": {
+                "separator": True
+            }
         }
     }
     return message
@@ -172,7 +205,8 @@ def acceptance_message(case, user):
 def application_message(case, application):
     title = case['title']
     description = application['description']
-    image = application['image'] #'https://imgur.com/ac7lLvz.png'
+    image = application['image']  # 'https://imgur.com/ac7lLvz.png'
+    url = case['url']
     message = {
         "type": "bubble",
         "body": {
@@ -180,24 +214,60 @@ def application_message(case, application):
             "layout": "vertical",
             "contents": [
                 {
-                    "type": "image",
-                    "url": "https://images.pexels.com/photos/1310532/pexels-photo-1310532.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-                    "aspectMode": "cover",
-                    "aspectRatio": "1.6:1",
-                    "animated": False,
-                    "size": "full"
-                },
-                {
                     "type": "box",
                     "layout": "vertical",
-                    "contents": [],
-                    "position": "absolute",
-                    "backgroundColor": "#00000055",
-                    "width": "100%",
-                    "height": "100%",
-                    "offsetBottom": "0px",
-                    "offsetStart": "0px",
-                    "offsetEnd": "0px"
+                    "contents": [
+                        {
+                            "type": "image",
+                            "url": "https://images.pexels.com/photos/1310532/pexels-photo-1310532.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
+                            "aspectMode": "cover",
+                            "aspectRatio": "1.6:1",
+                            "animated": False,
+                            "size": "full"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [],
+                            "position": "absolute",
+                            "backgroundColor": "#00000055",
+                            "width": "100%",
+                            "height": "100%",
+                            "offsetBottom": "0px",
+                            "offsetStart": "0px",
+                            "offsetEnd": "0px"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "contents": [
+                                        {
+                                            "type": "box",
+                                            "layout": "horizontal",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "幫手出現了！",
+                                                    "size": "xl",
+                                                    "color": "#ffffff"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "spacing": "xs"
+                                }
+                            ],
+                            "position": "absolute",
+                            "offsetBottom": "0px",
+                            "offsetStart": "0px",
+                            "offsetEnd": "0px",
+                            "paddingAll": "20px"
+                        }
+                    ]
                 },
                 {
                     "type": "box",
@@ -208,26 +278,54 @@ def application_message(case, application):
                             "layout": "vertical",
                             "contents": [
                                 {
+                                    "type": "text",
+                                    "text": title,
+                                    "weight": "regular",
+                                    "size": "lg",
+                                    "margin": "xs"
+                                },
+                                {
+                                    "type": "separator",
+                                    "margin": "lg"
+                                },
+                                {
                                     "type": "box",
                                     "layout": "horizontal",
                                     "contents": [
                                         {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "contents": [
+                                                {
+                                                    "type": "image",
+                                                    "url": image,
+                                                    "size": "full",
+                                                    "margin": "none",
+                                                    "aspectRatio": "1:1"
+                                                }
+                                            ],
+                                            "spacing": "none",
+                                            "width": "40px"
+                                        },
+                                        {
                                             "type": "text",
-                                            "text": "幫手出現了！",
-                                            "size": "xl",
-                                            "color": "#ffffff"
+                                            "text": description,
+                                            "size": "sm",
+                                            "margin": "md",
+                                            "wrap": True,
+                                            "color": "#AAAAAA",
+                                            "offsetStart": "xs",
+                                            "maxLines": 3
                                         }
-                                    ]
+                                    ],
+                                    "margin": "lg",
+                                    "paddingAll": "none"
                                 }
                             ],
-                            "spacing": "xs"
+                            "backgroundColor": "#00000000",
+                            "paddingAll": "20px"
                         }
-                    ],
-                    "position": "absolute",
-                    "offsetBottom": "0px",
-                    "offsetStart": "0px",
-                    "offsetEnd": "0px",
-                    "paddingAll": "20px"
+                    ]
                 }
             ],
             "paddingAll": "0px"
@@ -237,52 +335,20 @@ def application_message(case, application):
             "layout": "vertical",
             "contents": [
                 {
-                    "type": "text",
-                    "text": title,
-                    "weight": "regular",
-                    "size": "lg",
-                    "margin": "xs"
-                },
-                {
-                    "type": "separator",
-                    "margin": "lg"
-                },
-                {
-                    "type": "box",
-                    "layout": "horizontal",
-                    "contents": [
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [
-                                {
-                                    "type": "image",
-                                    "url": image,
-                                    "size": "full",
-                                    "margin": "none",
-                                    "aspectRatio": "1:1"
-                                }
-                            ],
-                            "spacing": "none",
-                            "width": "40px"
-                        },
-                        {
-                            "type": "text",
-                            "text": description,
-                            "size": "sm",
-                            "margin": "md",
-                            "wrap": True,
-                            "color": "#AAAAAA",
-                            "offsetStart": "xs",
-                            "maxLines": 3
-                        }
-                    ],
-                    "margin": "lg",
-                    "paddingAll": "none"
+                    "type": "button",
+                    "action": {
+                        "type": "uri",
+                        "label": "詳細資訊",
+                        "uri": url
+                    },
+                    "height": "sm"
                 }
-            ],
-            "backgroundColor": "#00000000",
-            "paddingAll": "20px"
+            ]
+        },
+        "styles": {
+            "footer": {
+                "separator": True
+            }
         }
     }
     return message
@@ -306,7 +372,7 @@ def recommanded_cases_message(cases):
                 "type": "box",
                 "layout": "vertical",
                 "contents": [],
-                "backgroundColor": colors[idx%3],
+                "backgroundColor": colors[idx % 3],
                 "paddingAll": "md"
             },
             "body": {

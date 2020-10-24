@@ -2,11 +2,11 @@
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, FlexSendMessage, TemplateSendMessage, CarouselTemplate, Template
 from linebot.exceptions import LineBotApiError
-from .import message_objects
+from . import message_objects
 
 import os
 
-channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
+channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN2', None)
 
 print(channel_access_token)
 
@@ -203,17 +203,22 @@ if __name__ == '__main__':
         }
     }
     test_userid = 'U2f7e15e05e4c914d1131b88756d1c39a'
-    test_case = {'title': '高中數學題', 'description': '高中數學題求解，請附上解題過程'}
-    test_application = {'description': '我會ㄛ 選我選我'}
+    test_case = {'title': '高中數學題', 'description': '高中數學題求解，請附上解題過程', 'url':'https://google.com'}
+    test_application = {'description': '我會ㄛ 選我選我', 'image':'https://imgur.com/ac7lLvz.png'}
     test_user = {'phone_number': '0912345678', 'lineid': 'lineid'}
 
-    print(test_userid)
+    # print(test_userid)
 
     # test_userid = 'U04d1a0375336023979bce781d7da76b3'
-    # notify_acceptance(test_userid, test_case, test_user)
+    notify_acceptance(test_userid, test_case, test_user)
     notify_application(test_userid, test_case, test_application)
     # push_message('U2f7e15e05e4c914d1131b88756d1c39a', FlexSendMessage(alt_text='精選', contents=(test_message)))
     # push_message(test_userid, TextSendMessage(text='Hello World!'))
+    # print(message_objects.acceptance_message(test_case, test_user))
+    # print(message_objects.application_message(test_case, test_application))
+
+
+# %%
 
 
 # %%
