@@ -16,7 +16,7 @@ def acceptance_message(case, user):
                     "contents": [
                         {
                             "type": "image",
-                            "url": "https://images.pexels.com/photos/1310532/pexels-photo-1310532.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
+                            "url": "https://imgur.com/VHvI11r.png",
                             "aspectMode": "cover",
                             "aspectRatio": "1.6:1",
                             "gravity": "top",
@@ -205,7 +205,9 @@ def acceptance_message(case, user):
 def application_message(case, application):
     title = case['title']
     description = application['description']
-    image = application['image']  # 'https://imgur.com/ac7lLvz.png'
+    image = application['image']
+    if not image:
+        image = "https://imgur.com/xa7uYf3.png"
     url = case['url']
     message = {
         "type": "bubble",
@@ -219,7 +221,7 @@ def application_message(case, application):
                     "contents": [
                         {
                             "type": "image",
-                            "url": "https://images.pexels.com/photos/1310532/pexels-photo-1310532.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
+                            "url": "https://imgur.com/fW6n1zA.png",
                             "aspectMode": "cover",
                             "aspectRatio": "1.6:1",
                             "animated": False,

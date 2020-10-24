@@ -204,7 +204,7 @@ if __name__ == '__main__':
     }
     test_userid = 'U2f7e15e05e4c914d1131b88756d1c39a'
     test_case = {'title': '高中數學題', 'description': '高中數學題求解，請附上解題過程', 'url':'https://google.com'}
-    test_application = {'description': '我會ㄛ 選我選我', 'image':'https://imgur.com/ac7lLvz.png'}
+    test_application = {'description': '我會ㄛ 選我選我', 'image':''}
     test_user = {'phone_number': '0912345678', 'lineid': 'lineid'}
 
     # print(test_userid)
