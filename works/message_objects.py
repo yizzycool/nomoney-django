@@ -367,6 +367,7 @@ def recommanded_cases_message(cases):
         description = case['description']
         pay = case['pay']
         location = case['location']
+        url = case['url']
         bubble = {
             "type": "bubble",
             "size": "kilo",
@@ -469,6 +470,11 @@ def recommanded_cases_message(cases):
                     }
                 ],
                 "paddingAll": "xxl"
+            },
+            "action": {
+                "type": "uri",
+                "label": "action",
+                "uri": url
             },
             "styles": {
                 "footer": {
