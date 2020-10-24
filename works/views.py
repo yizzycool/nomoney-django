@@ -405,16 +405,25 @@ def crud_application(request):
     action = body['action']
     caseId = body['caseId']
     employeeId = body['employeeId']
-    if action == 'update' or action =='create':
-        obj, created = Case.objects.update_or_create(caseId=caseId, employeeId=employeeId)
+    if action == 'create':
+        obj = Application()
+        obj.caseId = Case.objects.get(id = caseId)
+        obj.employeeId = User.objects.get(userId = employeeId)
+        if 'message' in body:
+            obj.message=body['message']
+        return JsonResponse(get_crud_application(obj))
+    elif action == 'update':
+        print('UPDATE')
+        obj = Application.objects.filter(caseId__id=caseId, employeeId__userId=employeeId).first()
+        if obj == None:
+            return JsonResponse({'noData':True})
         if 'message' in body:
             obj.message=body['message']
         if 'accepted' in body:
             obj.accepted=body['accepted']
-            if body['accpeted'] == True:
-                # call line-bot 傳給使用者
-                # coding here ........
-                pass
+            if body['accepted'] == True:
+                print()
+                call_linebot_notify_acceptance(employeeId, obj)
         if 'employerRating' in body:
             obj.employerRating=body['employerRating']
         if 'employeeRating' in body:
@@ -431,8 +440,6 @@ def crud_application(request):
         return JsonResponse({'success': True})
     else:
         return JsonResponse({'noData': True})
-    pass
-
 
 
 ######################
@@ -480,3 +487,18 @@ def recommanded_cases(userIdToken):
     ][:5]
     cases = sorted(cases, key=lambda x: (x['matchScore'], x['publishTime']), reverse=True)
     return cases
+
+
+# Function
+def call_linebot_notify_acceptance(employeeId, obj):
+    # call line-bot notify_acceptance
+    case = {
+        'title': obj.caseId.title,
+        'description': obj.caseId.text,
+    }
+    user = {
+        'phone_number': obj.caseId.employerId.phone,
+        'lineid': obj.caseId.employerId.lineId,
+    }
+    notify_acceptance(employeeId, case, user)
+    return

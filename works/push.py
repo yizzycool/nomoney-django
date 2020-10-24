@@ -2,11 +2,11 @@
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, FlexSendMessage, TemplateSendMessage, CarouselTemplate, Template
 from linebot.exceptions import LineBotApiError
-import message_objects
+from .import message_objects
 
 import os
 
-channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN2', None)
+channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 
 print(channel_access_token)
 
@@ -23,10 +23,11 @@ def push_message(userid, messages):
 
 
 def notify_acceptance(receiverid, case, user):
-    # 有人需要你的幫忙！
+    # 有人接受了你的幫助！
     message = message_objects.acceptance_message(case, user)
-    message_object = FlexSendMessage(alt_text='有人需要你的幫忙！', contents=message)
+    message_object = FlexSendMessage(alt_text='有人接受了你的幫助！', contents=message)
     push_message(receiverid, message_object)
+    return
 
 
 def notify_application(receiverid, case, application):
@@ -34,6 +35,7 @@ def notify_application(receiverid, case, application):
     message = message_objects.application_message(case, application)
     message_object = FlexSendMessage(alt_text='幫手出現了！', contents=message)
     push_message(receiverid, message_object)
+    return
 
 
 if __name__ == '__main__':

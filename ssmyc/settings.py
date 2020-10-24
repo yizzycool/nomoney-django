@@ -136,5 +136,5 @@ STATICFILES_DIRS = [
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
        'http://joker.nlplab.cc:3000 ',
-       'http://localhost:3000'
+       'http://localhost:3000',
 )
