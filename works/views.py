@@ -178,6 +178,9 @@ def search_case(request):
     body = json.loads(request.body.decode('utf-8'))
     userIdToken = body['userIdToken']
     keyword = body['keyword']
+    # New Func: hashtag
+    if 'hashtag' in body:
+        pass
     obj = Case.objects.all().order_by('-publishTime')
     # 過濾掉已關閉的
     obj = obj.filter(status='O')
@@ -220,6 +223,7 @@ def search_case(request):
                 'status': case.status,
                 'publishTime': tz.localtime(case.publishTime),
                 'modifiedTime': tz.localtime(case.modifiedTime),
+                'hashtag': [ mid_obj.hashtag.tag for mid_obj in case.middleagent_set.all() ]
             }
             for case in obj
         ]
@@ -234,7 +238,7 @@ def search_case(request):
 # Function
 def get_crud_profile(obj):
     return {
-        'noDate': False,
+        'noData': False,
         'userId': obj.userId,
         'displayName': obj.displayName,
         'image': obj.image,
@@ -246,31 +250,6 @@ def get_crud_profile(obj):
         'rating': obj.rating,
         'lineId': obj.lineId,
     }
-    pass
-
-
-# Function
-def put_crud_profile(obj_raw, body):
-    obj = obj_raw
-    if 'displayName' in body:
-        obj.displayName=body['displayName']
-    if 'image' in body:
-        obj.image=body['image']
-    if 'intro' in body:
-        obj.intro=body['intro']
-    if 'gender' in body:
-        obj.gender=body['gender']
-    if 'birthday' in body:
-        obj.birthday=body['birthday']
-    if 'phone' in body:
-        obj.phone=body['phone']
-    if 'contry' in body:
-        obj.county=body['county']
-    if 'rating' in body:
-        obj.rating=body['rating']
-    if 'lineId' in body:
-        obj.lineId=body['lineId']
-    return obj
 
 
 # API
@@ -278,8 +257,15 @@ def crud_profile(request):
     body = json.loads(request.body.decode('utf-8'))
     action = body['action']
     userIdToken = body['userIdToken']
-    if action == 'update' or action =='create':
-        obj, created = User.objects.update_or_create(userId=userIdToken)
+    isNewUser = False
+    if action == 'create' or action == 'update':
+        if User.objects.filter(userId=userIdToken).count() == 0:
+            obj = User(userId=userIdToken)
+            isNewUser = True
+        else:
+            obj = User.objects.get(userId=userIdToken)
+        if action == 'create' and not isNewUser:
+            return JsonResponse(get_crud_profile(obj))
         if 'displayName' in body:
             obj.displayName=body['displayName']
         if 'image' in body:
@@ -292,7 +278,7 @@ def crud_profile(request):
             obj.birthday=body['birthday']
         if 'phone' in body:
             obj.phone=body['phone']
-        if 'contry' in body:
+        if 'county' in body:
             obj.county=body['county']
         if 'rating' in body:
             obj.rating=body['rating']
@@ -315,7 +301,7 @@ def crud_profile(request):
 # Function
 def get_crud_case(obj):
     return {
-        'noDate': False,
+        'noData': False,
         'employerId': obj.employerId.userId,
         'title': obj.title,
         'text': obj.text,
@@ -325,6 +311,9 @@ def get_crud_case(obj):
         'publishTime': obj.publishTime,
         'modifiedTime': obj.modifiedTime,
         'caseId': obj.id,
+        'hashtag': [ 
+            mid_obj.hashtag.tag for mid_obj in obj.middleagent_set.all()
+        ]
     }
 
 
@@ -334,40 +323,43 @@ def crud_case(request):
     caseId = body['caseId']
     if action == 'create':
         obj = Case()
-        if 'employerId' in body:
-            obj.employerId = User.objects.get(userId=body['employerId'])
-        if 'title' in body:
-            obj.title=body['title']
-        if 'text' in body:
-            obj.text=body['text']
-        if 'location' in body:
-            obj.location=body['location']
-        if 'pay' in body:
-            obj.pay=body['pay']
-        if 'status' in body:
-            obj.status=body['status']
         localtime = tz.localtime(tz.now())
         obj.publishTime = localtime
         obj.modifiedTime = localtime
-        obj.save()
-        return JsonResponse(get_crud_case(obj))
     elif action == 'update':
         obj, created = Case.objects.update_or_create(id=caseId)
+        obj.modifiedTime = tz.localtime(tz.now())
+    if action == 'create' or action == 'update':
         if 'employerId' in body:
             obj.employerId = User.objects.get(userId=body['employerId'])
         if 'title' in body:
-            obj.title=body['title']
+            obj.title = body['title']
         if 'text' in body:
-            obj.text=body['text']
+            obj.text = body['text']
         if 'location' in body:
-            obj.location=body['location']
+            obj.location = body['location']
         if 'pay' in body:
-            obj.pay=body['pay']
+            obj.pay = body['pay']
         if 'status' in body:
-            obj.status=body['status']
-        obj.modifiedTime = tz.localtime(tz.now())
+            obj.status = body['status']
         obj.save()
-        return JsonResponse(get_crud_case(obj))
+        # New func: add keywords as hashtag
+        if 'title' in body or 'text' in body:
+            content = obj.title + '\n' + obj.text
+            tok_pos = utils.extract_tokens_pos(content)
+            keywords = utils.chi_square_test(tok_pos)
+            for keyword, _, _ in keywords:
+                # save hash tag here
+                hash_obj = Hashtag.objects.filter(tag = keyword).first()
+                if hash_obj == None:
+                    hash_obj = Hashtag(tag = keyword, count = 1)
+                    hash_obj.save()
+                    middle_agent = MiddleAgent(case = obj, hashtag = hash_obj)
+                else:
+                    middle_obj = MiddleAgent.objects.filter(case__id = obj.id, hashtag__tag = keyword).first()
+                    if middle_obj == None:
+                        middle_obj = MiddleAgent(case = obj, hashtag = hash_obj)
+                        middle_obj.save()
     elif action == 'read':
         obj = Case.objects.filter(id=caseId).first()
         if obj == None:
@@ -390,14 +382,13 @@ def crud_case(request):
 # Function
 def get_crud_application(obj):
     return {
-        'noDate': False,
+        'noData': False,
         'caseId': obj.caseId.id,
         'employeeId': obj.employeeId.userId,
         'message': obj.message,
         'accepted': obj.accepted,
         'employerRating': obj.employerRating,
         'employeeRating': obj.employeeRating,
-        'appId': obj.id,
     }
 
 
@@ -407,9 +398,8 @@ def crud_application(request):
     action = body['action']
     caseId = body['caseId']
     employeeId = body['employeeId']
-    print(action, caseId, employeeId)
     if action == 'create':
-        if Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId):
+        if Application.objects.filter(caseId__id=caseId, employeeId__userId=employeeId):
             return JsonResponse({
                 'error': 'duplicated'
             })
@@ -420,10 +410,10 @@ def crud_application(request):
             obj.message=body['message']
         obj.save()
         # call line bot to send notification
-        try:
+        """try:
             call_linebot_notify_application(obj.caseId.employerId.userId, obj)
         except:
-            pass
+            pass"""
         return JsonResponse(get_crud_application(obj))
     # "UPDATE" is Only for employer
     if action == 'update':
