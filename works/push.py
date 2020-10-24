@@ -6,7 +6,7 @@ from . import message_objects
 
 import os
 
-channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN2', None)
+channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 
 print(channel_access_token)
 
