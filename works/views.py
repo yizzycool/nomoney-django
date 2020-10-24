@@ -176,7 +176,6 @@ def search_case(request):
     body = json.loads(request.body.decode('utf-8'))
     userIdToken = body['userIdToken']
     keyword = body['keyword']
-    print(userIdToken)
     obj = Case.objects.all().order_by('-publishTime')
     # 過濾掉已關閉的
     obj = obj.filter(status='O')
@@ -414,7 +413,10 @@ def crud_application(request):
             obj.message=body['message']
         obj.save()
         # call line bot to send notification
-        call_linebot_notify_application(obj.caseId.employerId.userId, obj)
+        """try:
+            call_linebot_notify_application(obj.caseId.employerId.userId, obj)
+        except:
+            pass"""
         return JsonResponse(get_crud_application(obj))
     # "UPDATE" is Only for employer
     if action == 'update':
@@ -427,10 +429,10 @@ def crud_application(request):
             obj.accepted=body['accepted']
             if body['accepted'] == "A":
                 # call line bot to send notification
-                try:
+                """try:
                     call_linebot_notify_acceptance(employeeId, obj)
                 except:
-                    pass
+                    pass"""
         if 'employerRating' in body:
             obj.employerRating=body['employerRating']
         if 'employeeRating' in body:
