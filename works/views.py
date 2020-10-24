@@ -427,7 +427,10 @@ def crud_application(request):
             obj.accepted=body['accepted']
             if body['accepted'] == "A":
                 # call line bot to send notification
-                call_linebot_notify_acceptance(employeeId, obj)
+                try:
+                    call_linebot_notify_acceptance(employeeId, obj)
+                except:
+                    pass
         if 'employerRating' in body:
             obj.employerRating=body['employerRating']
         if 'employeeRating' in body:
