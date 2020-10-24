@@ -504,6 +504,7 @@ def call_linebot_notify_acceptance(employeeId, obj):
     case = {
         'title': obj.caseId.title,
         'description': obj.caseId.text,
+        'url': "https://liff.line.me/1655089903-YawqnnaN/case?caseId="+str(obj.caseId.id)
     }
     user = {
         'phone_number': obj.caseId.employerId.phone,
@@ -518,6 +519,7 @@ def call_linebot_notify_application(employeeId, obj):
     # call line-bot notify_application
     case = {
         'title': obj.caseId.title,
+        'url': "https://liff.line.me/1655089903-YawqnnaN/case?caseId="+str(obj.caseId.id)
     }
     application = {
         'description': obj.message,
