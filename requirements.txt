@@ -7,7 +7,12 @@ future==0.18.2
 idna==2.10
 jieba==0.42.1
 line-bot-sdk==1.17.0
+monpa==0.3.1
+numpy==1.19.2
 pytz==2020.1
 requests==2.24.0
+scipy==1.5.3
+six==1.15.0
 sqlparse==0.4.1
+torch==1.6.0
 urllib3==1.25.11

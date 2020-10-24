@@ -124,6 +124,8 @@ def get_application_by_case_id(body):
             'accepted': obj.accepted,
             'employerRating': obj.employeeRating,
             'employerRating': obj.employerRating,
+            'phone': obj.employeeId.phone ,
+            'lineId': obj.employeeId.lineId,
         }
         for obj in child_obj
     ]
@@ -462,7 +464,6 @@ def recommanded_cases(userIdToken):
     user_obj = user_obj.first()
     # 用 monpy 取出好的詞彙
     intro = set(utils.extract_tokens(user_obj.intro))
-    print(intro)
     gender = gender_exclude[user_obj.gender]
     county = user_obj.county
     # 過濾已經關閉的 / 自己發的案件
