@@ -177,27 +177,14 @@ def get_case_by_case_id(request):
 def search_case(request):
     body = json.loads(request.body.decode('utf-8'))
     userIdToken = body['userIdToken']
-    keyword = body['keyword']
+    keyword = body['keyword'].split()
+    offset = int(body['offset'])
     obj = Case.objects.all().order_by('-publishTime')
-    # New Func: hashtags
-    if len(keyword) != 0 and '#' in keyword:
-        tags = [tok[1:] for tok in keyword.split() if tok[0] == '#']
-        matchCases = []
-        for hash_obj in Hashtag.objects.all().filter(tag__in=[tags]):
-            for mid in hash_obj.middleagent_set.all():
-                matchCases.append(mid.case.id)
-        matchCases = list(set(matchCases))
-        obj = obj.filter(id__in=[matchCases])
     # 過濾掉已關閉的
     obj = obj.filter(status='O')
     # 過濾掉自己發的
     obj = obj.exclude(employerId__userId=userIdToken)
-    # 過濾掉已經應徵的
-    applications = list(set([app.caseId.id for app in Application.objects.filter(employeeId__userId=userIdToken).all()]))
-    obj = obj.exclude(id__in=applications)
-    obj_score = []
-    offset = int(body['offset'])
-    #if 'conditions'
+    # If condition
     if 'conditions' in body:
         for key, value in body['conditions'].items():
             if key == 'location' and value != '':
@@ -211,17 +198,47 @@ def search_case(request):
                 obj = obj.filter(pay__gte=int(value))
             if key == 'maxpay':
                 obj = obj.filter(pay__lte=int(value))
-    if keyword != '':
-        title_obj = obj.filter(title__icontains=keyword)
-        if title_obj.count() != 0:
-            obj = title_obj
-        else:
-            obj = obj.filter(text__icontains=keyword)
     if obj.count() == 0:
-        return JsonResponse({'noData':True})
+        return JsonResponse({'noData': True})
+    # New Func: hashtags
+    if len(keyword) != 0:
+        tags = [tok[1:] for tok in keyword if tok[0] == '#']
+        keyword = [tok for tok in keyword if tok[0] != '#']
+        obj_score = [0.0 for _ in range(obj.count())]
+        for idx, case in enumerate(obj):
+            case_tags = set([mid.hashtag.tag for mid in case.middleagent_set.all()])
+            obj_score[idx] += len(set(tags)&case_tags) * 100
+            title = set(utils.extract_tokens(case.title))
+            text = set(utils.extract_tokens(case.text))
+            obj_score[idx] += len(set(keyword)&title) * 2
+            obj_score[idx] += len(set(keyword)&text)
+        cases = [
+            {
+                'matchScore' : obj_score[idx],
+                'caseId': case.id,
+                'employerId': case.employerId.userId,
+                'displayName': case.employerId.displayName,
+                'title': case.title,
+                'text': case.text,
+                'location': case.location,
+                'pay': case.pay,
+                'status': case.status,
+                'publishTime': tz.localtime(case.publishTime),
+                'modifiedTime': tz.localtime(case.modifiedTime),
+                'hashtag': [ mid_obj.hashtag.tag for mid_obj in case.middleagent_set.all() ]
+            }
+            for idx, case in enumerate(obj)
+        ]
+        cases = list(filter(lambda x: x['matchScore'] > 0, cases))
+        if len(cases) == 0: return JsonResponse({ 'noData': True })
+        cases = sorted(cases, key=lambda x: x['matchScore'], reverse=True)
+        return JsonResponse({
+            'count': len(cases),
+            'noData': False,
+            'offset': offset,
+            'cases': cases[offset:offset+10],
+        })
     else:
-        total_match = obj.count()
-        obj = obj[offset:offset+10]
         cases = [
             {
                 'caseId': case.id,
@@ -239,10 +256,10 @@ def search_case(request):
             for case in obj
         ]
         return JsonResponse({
-            'count': total_match,
-            'noData': True if obj.count() == 0 else False,
+            'count': len(cases),
+            'noData': False,
             'offset': offset,
-            'cases': cases,
+            'cases': cases[offset:offset+10],
         })
 
 
@@ -482,11 +499,10 @@ def recommanded_cases(userIdToken):
     cases_obj = cases_obj.exclude(id__in=applications)
     if gender != '':
         cases_obj.exclude(title__icontains=gender).exclude(text__icontains=gender)
-    print(cases_obj)
     cases_score = [0.0 for case in range(cases_obj.count())]
     for idx, case in enumerate(cases_obj):
         title = set(utils.extract_tokens(case.title))
-        text = set(utils.extract_tokens(case.title))
+        text = set(utils.extract_tokens(case.text))
         location = case.location
         pay = int(case.pay)
         cases_score[idx] += min(len(intro&title) * 2, 9999)
@@ -503,8 +519,8 @@ def recommanded_cases(userIdToken):
         'location': case.location,
         'matchScore': cases_score[idx],
     } for idx, case in enumerate(cases_obj)
-    ][:5]
-    cases = sorted(cases, key=lambda x: (x['matchScore'], x['publishTime']), reverse=True)
+    ]
+    cases = sorted(cases, key=lambda x: (x['matchScore'], x['publishTime']), reverse=True)[:5]
     return cases
 
 
