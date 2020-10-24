@@ -24,7 +24,7 @@ def push_message(userid, messages):
 def notify_acceptance(receiverid, case, user):
     # 有人接受了你的幫助！
     message = message_objects.acceptance_message(case, user)
-    message_object = FlexSendMessage(alt_text='有人接受了你的幫助！', contents=message)
+    message_object = FlexSendMessage(alt_text='【錄取通知】'+case['title'], contents=message)
     push_message(receiverid, message_object)
     return
 

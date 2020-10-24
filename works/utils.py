@@ -13,6 +13,8 @@ stopwords = list(map(lambda x: x.strip(), stopwords))
 wc_counter = Counter(json.load(open(WC_PATH)))
 wc_total = sum(wc_counter.values())
 
+special_tag = ['LOC', 'PER', 'ORG']
+
 
 def extract_tokens_pos(text):
     lines = text.strip().splitlines()
@@ -29,12 +31,15 @@ def extract_tokens(text):
     return [tok for tok, pos in extract_tokens_pos(text)]
 
 
-def chi_square_test(word_list):
-    chi = []
-    data_len = len(word_list)
-    for token in list(set(word_list)):
-        data_wc = word_list.count(token)
-        corpus_wc = wc_counter[token]
+def chi_square_test(tok_pos):
+    chi, words_done = [], []
+    tok, pos = list(zip(*tok_pos))
+    data_len = len(tok)
+    for idx in range(len(tok_pos)):
+        if (pos[idx][0] != 'N' and pos[idx] not in special_tag) or tok[idx] in words_done:
+            continue
+        data_wc = tok.count(tok[idx])
+        corpus_wc = wc_counter[tok[idx]]
         obs = np.array(
             [
                 [ data_wc, data_len - data_wc ],
@@ -43,5 +48,10 @@ def chi_square_test(word_list):
         )
         chi2, p, _, _ = chi2_contingency(obs)
         if p < 0.05:
-            chi.append([token, chi2, p])
-    return sorted(chi, key=lambda x: (x[1], x[2]), reverse=True)
+            chi.append([tok[idx], chi2, p])
+            words_done.append(tok[idx])
+    chi = sorted(chi, key=lambda x: (x[1], x[2]), reverse=True)
+    if len(chi) > 0:
+        max_value = chi[0][1]
+        chi = list(filter(lambda x: x[1] > (max_value / 5.0), chi))
+    return chi

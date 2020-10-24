@@ -407,7 +407,12 @@ def crud_application(request):
     action = body['action']
     caseId = body['caseId']
     employeeId = body['employeeId']
+    print(action, caseId, employeeId)
     if action == 'create':
+        if Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId):
+            return JsonResponse({
+                'error': 'duplicated'
+            })
         obj = Application()
         obj.caseId = Case.objects.get(id = caseId)
         obj.employeeId = User.objects.get(userId = employeeId)
@@ -415,10 +420,10 @@ def crud_application(request):
             obj.message=body['message']
         obj.save()
         # call line bot to send notification
-        """try:
+        try:
             call_linebot_notify_application(obj.caseId.employerId.userId, obj)
         except:
-            pass"""
+            pass
         return JsonResponse(get_crud_application(obj))
     # "UPDATE" is Only for employer
     if action == 'update':
