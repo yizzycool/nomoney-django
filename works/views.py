@@ -59,6 +59,7 @@ def get_employee_history(body):
             'publishTime': tz.localtime(app.caseId.publishTime),
             'modifiedTime': tz.localtime(app.caseId.modifiedTime),
             'caseId': app.caseId.id,
+            'hashtag': [ mid_obj.hashtag.tag for mid_obj in app.caseId.middleagent_set.all() ]
         }
         for app in sorted_obj
     ]
@@ -98,6 +99,7 @@ def get_employer_history(body):
             'publishTime': tz.localtime(case.publishTime),
             'modifiedTime': tz.localtime(case.modifiedTime),
             'caseId': case.id,
+            'hashtag': [ mid_obj.hashtag.tag for mid_obj in case.middleagent_set.all() ],
         }
         for case in sorted_obj
     ]
@@ -166,6 +168,7 @@ def get_case_by_case_id(request):
         'modifiedTime': tz.localtime(obj.modifiedTime),
         'caseId': obj.id,
         'isOwner': isOwner,
+        'hashtag': [ mid_obj.hashtag.tag for mid_obj in obj.middleagent_set.all() ],
         #------ Employee Data ------#
         'count': applications['count'],
         'applications':applications['applications'],
@@ -355,7 +358,7 @@ def crud_case(request):
         obj.publishTime = localtime
         obj.modifiedTime = localtime
     elif action == 'update':
-        obj, created = Case.objects.update_or_create(id=caseId)
+        obj = Case.objects.filter(id=caseId).first()
         obj.modifiedTime = tz.localtime(tz.now())
     if action == 'create' or action == 'update':
         if 'employerId' in body:
@@ -371,6 +374,9 @@ def crud_case(request):
         if 'status' in body:
             obj.status = body['status']
         obj.save()
+        # Before hashtag: delete old hashtag if exist
+        for mid in obj.middleagent_set.all():
+            mid.delete()
         # New func: add keywords as hashtag
         if 'title' in body or 'text' in body:
             content = obj.title + '\n' + obj.text
@@ -383,6 +389,7 @@ def crud_case(request):
                     hash_obj = Hashtag(tag = keyword, count = 1)
                     hash_obj.save()
                     middle_agent = MiddleAgent(case = obj, hashtag = hash_obj)
+                    middle_agent.save()
                 else:
                     hash_obj.count += 1
                     hash_obj.save()
@@ -402,11 +409,8 @@ def crud_case(request):
         for mid in Case.objects.filter(id=caseId).first().middleagent_set.all():
             hash_obj = Hashtag.objects.filter(id=mid.hashtag.id).first()
             if hash_obj:
-                if hash_obj.count - 1 == 0:
-                    hash_obj.delete()
-                else:
-                    hash_obj.count -= 1
-                    hash_obj.save()
+                hash_obj.count = max( 0, hash_obj.count - 1 )
+                hash_obj.save()
         Case.objects.filter(id=caseId).delete()
         cases = get_employer_history({'userIdToken':userIdToken})
         return JsonResponse({
