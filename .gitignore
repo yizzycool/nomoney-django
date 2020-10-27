@@ -4,3 +4,5 @@ tokens.sh
 __pycache__/
 works/data.zip
 works/data/
+db.sqlite3
+works/migrations/
