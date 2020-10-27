@@ -86,10 +86,10 @@ def get_employer_history(body):
                 'employerId': case.employerId.userId,
                 'displayName': case.employerId.displayName,
                 'image': case.employerId.image,
-                'gender': case.employerId.gender,
-                'phone': case.employerId.phone,
-                'rating': case.employerId.rating,
-                'lineId': case.employerId.lineId,
+                #'gender': case.employerId.gender,
+                #'phone': case.employerId.phone,
+                #'rating': case.employerId.rating,
+                #'lineId': case.employerId.lineId,
             },
             'title': case.title,
             'text': case.text,
@@ -111,12 +111,16 @@ def get_employer_history(body):
 
 
 # Function
-def get_application_by_case_id(body):
+def get_application_by_case_id(body, isOwner):
     #body = json.loads(request.body.decode('utf-8'))
     caseId = body['caseId']
+    userIdToken = body['userIdToken']
     obj = Case.objects.filter(id=caseId).first()
     if obj == None: return JsonResponse({'noData':True})
-    child_obj = obj.application_set.all().order_by('-id')
+    if isOwner:
+        child_obj = obj.application_set.all().order_by('-id')
+    else:
+        child_obj = obj.application_set.all().filter(employeeId__userId=userIdToken).order_by('-id')
     applications = [
         {
             'caseId': obj.caseId.id,
@@ -126,11 +130,15 @@ def get_application_by_case_id(body):
             'accepted': obj.accepted,
             'employerRating': obj.employeeRating,
             'employerRating': obj.employerRating,
-            'phone': obj.employeeId.phone ,
+            'phone': obj.employeeId.phone if obj.accepted == 'A' else '',
             'lineId': obj.employeeId.lineId,
         }
         for obj in child_obj
     ]
+    for app in applications:
+        if app['accepted'] != 'A':
+            app.pop('phone', None)
+            app.pop('lineId', None)
     return {
         'count': child_obj.count(),
         'applications': applications,
@@ -145,10 +153,11 @@ def get_case_by_case_id(request):
     obj = Case.objects.filter(id=caseId)
     if obj.count() != 1: return JsonResponse({'noData': True})
     obj = obj.first()
+    # 判斷是否為 Owner
     isOwner = True if userIdToken == obj.employerId.userId else False
-    applications = get_application_by_case_id(body)
+    applications = get_application_by_case_id(body, isOwner)
     case = {
-        'noData': True,
+        'noData': False,
         'employer':{
             #------ Employer part ------#
             'employerId': obj.employerId.userId,
@@ -173,6 +182,11 @@ def get_case_by_case_id(request):
         'count': applications['count'],
         'applications':applications['applications'],
     }
+    app_obj = Application.objects.filter(employeeId__userId=userIdToken, caseId__id=caseId).first()
+    if not isOwner and app_obj and app_obj.accepted != 'A':
+        case['employer'].pop('image', None)
+        case['employer'].pop('phone', None)
+        case['employer'].pop('lineId', None)
     return JsonResponse(case)
 
 
@@ -239,7 +253,7 @@ def search_case(request):
             'count': len(cases),
             'noData': False,
             'offset': offset,
-            'cases': cases[offset:offset+10],
+            'cases': cases,#[offset:offset+10],
         })
     else:
         cases = [
@@ -262,7 +276,7 @@ def search_case(request):
             'count': len(cases),
             'noData': False,
             'offset': offset,
-            'cases': cases[offset:offset+10],
+            'cases': cases,#[offset:offset+10],
         })
 
 
@@ -374,11 +388,11 @@ def crud_case(request):
         if 'status' in body:
             obj.status = body['status']
         obj.save()
-        # Before hashtag: delete old hashtag if exist
-        for mid in obj.middleagent_set.all():
-            mid.delete()
         # New func: add keywords as hashtag
         if 'title' in body or 'text' in body:
+            # Before hashtag: delete old hashtag if exist
+            for mid in obj.middleagent_set.all():
+                mid.delete()
             content = obj.title + '\n' + obj.text
             tok_pos = utils.extract_tokens_pos(content)
             keywords = utils.chi_square_test(tok_pos)
@@ -504,7 +518,7 @@ def recommanded_cases(userIdToken):
     # 用 monpy 取出好的詞彙
     intro = set(utils.extract_tokens(user_obj.intro))
     gender = gender_exclude[user_obj.gender]
-    county = user_obj.county
+    county = user_obj.county.split('/')
     # 過濾已經關閉的 / 自己發的案件
     cases_obj = Case.objects.filter(status='O').exclude(employerId__userId=userIdToken)
     # 過濾掉已經應徵的
@@ -516,13 +530,20 @@ def recommanded_cases(userIdToken):
     for idx, case in enumerate(cases_obj):
         title = set(utils.extract_tokens(case.title))
         text = set(utils.extract_tokens(case.text))
-        location = case.location
+        location = case.location.split('/')
         pay = int(case.pay)
         cases_score[idx] += min(len(intro&title) * 2, 9999)
         cases_score[idx] += min(len(intro&text), 9999)
-        if county == location:
-            cases_score[idx] += 9999
-        
+        if len(county) == 2 and len(location) == 2:
+            if county[0] == location[0]:
+                if county[1] == location[1]:
+                    cases_score[idx] += 9999
+                elif county[1] == '全部' or location == '全部':
+                    cases_score[idx] += 8000
+                else:
+                    cases_score[idx] += 5000
+            elif county[0] == '全部' or location[0] == '全部':
+                cases_score[idx] += 5000
     cases = [{
         'caseId': case.id,
         'title': case.title.strip(),

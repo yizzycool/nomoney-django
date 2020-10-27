@@ -166,7 +166,7 @@ def acceptance_message(case, user):
                                     "action": {
                                         "type": "uri",
                                         "label": "action",
-                                        "uri": "https://line.me/R/ti/p/~lineid"
+                                        "uri": "https://line.me/R/ti/p/~" + lineid
                                     }
                                 }
                             ],
