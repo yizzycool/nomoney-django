@@ -7,9 +7,9 @@ from time import gmtime, strftime
 from works.models import User, Case, Application, Hashtag, MiddleAgent
 import json
 from django.template import Context, loader
-from jieba import analyse
 from . import utils 
 from .push import notify_acceptance, notify_application
+import requests
 
 
 # API
@@ -181,12 +181,33 @@ def get_case_by_case_id(request):
         #------ Employee Data ------#
         'count': applications['count'],
         'applications':applications['applications'],
+        'recommendations':[]
     }
     app_obj = Application.objects.filter(employeeId__userId=userIdToken, caseId__id=caseId).first()
     if not isOwner and app_obj and app_obj.accepted != 'A':
         case['employer'].pop('image', None)
         case['employer'].pop('phone', None)
         case['employer'].pop('lineId', None)
+    if len(case['hashtag']) == 0:
+        return JsonResponse(case)
+    rec_data = {
+        "userIdToken": userIdToken,
+        "keyword": ' '.join(case['hashtag']),
+        "offset": 0
+    }
+    rec_response = requests.post('https://nomoney.nlplab.cc/api/search_case', json.dumps(rec_data))
+    rec = json.loads(rec_response.text)
+    if rec['noData']:
+        return JsonResponse(case)
+    else:
+        rec['cases'] = [r for r in rec['cases'] if r['caseId']!=case['caseId']]
+        for rec_case in rec['cases'][:5]:
+            case['recommendations'].append({
+                'caseId': rec_case['caseId'],
+                'title': rec_case['title'],
+                'location': rec_case['location'],
+                'pay': rec_case['pay']
+                })
     return JsonResponse(case)
 
 

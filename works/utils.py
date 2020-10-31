@@ -1,7 +1,9 @@
-import monpa, os, json, math
+import os, json, math, monpa
 from collections import Counter
 from scipy.stats import chi2_contingency
 import numpy as np
+from ckiptagger import WS, POS
+
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 STOPWORDS_PATH = os.path.join(BASE_PATH, 'data/stopwords')
@@ -15,6 +17,8 @@ wc_total = sum(wc_counter.values())
 
 special_tag = ['Na', 'Nb', 'Nc', 'LOC', 'PER', 'ORG']
 
+ws = WS(os.path.join(BASE_PATH, "data/data"))
+pos = POS(os.path.join(BASE_PATH, "data/data"))
 
 def extract_tokens_pos(text):
     lines = text.strip().splitlines()
