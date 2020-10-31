@@ -394,7 +394,7 @@ def crud_case(request):
         obj.modifiedTime = localtime
     elif action == 'update':
         obj = Case.objects.filter(id=caseId).first()
-        obj.modifiedTime = tz.localtime(tz.now())
+        #obj.modifiedTime = tz.localtime(tz.now())
     if action == 'create' or action == 'update':
         if 'employerId' in body:
             obj.employerId = User.objects.get(userId=body['employerId'])
@@ -410,7 +410,7 @@ def crud_case(request):
             obj.status = body['status']
         obj.save()
         # New func: add keywords as hashtag
-        if 'title' in body or 'text' in body:
+        if 'title' in body or 'text' in body or 'anyway' in body:
             # Before hashtag: delete old hashtag if exist
             for mid in obj.middleagent_set.all():
                 mid.delete()
