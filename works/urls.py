@@ -10,5 +10,6 @@ urlpatterns = [
     path('crud_profile', views.crud_profile, name='crud_profile'),
     path('crud_case', views.crud_case, name='crud_case'),
     path('crud_app', views.crud_application, name='crud_app'),
-    path('callback', reply.callback, name='callback')
+    path('callback', reply.callback, name='callback'),
+    #path('delete_hashtag', views.delete_hashtag, name='delete_hashtag')
 ]

@@ -418,7 +418,7 @@ def crud_case(request):
                 if hash_obj:
                     hash_obj.count = max( 0, hash_obj.count - 1 )
                     hash_obj.save()
-                    if hash_obj.count == 0:
+                    if hash_obj.count < 1:
                         hash_obj.delete()
                 mid.delete()
             content = obj.title + '\n' + obj.text
@@ -618,3 +618,18 @@ def call_linebot_notify_application(employeeId, obj):
     }
     notify_application(employeeId, case, application)
     return
+
+
+# Owner function: delete null hashtag
+"""def delete_hashtag(request):
+    hash_obj = Hashtag.objects.filter(count__lt=1).all()
+    delete_num = [(obj.tag, obj.count) for obj in hash_obj]
+    for obj in hash_obj:
+        obj.delete()
+    hash_obj = Hashtag.objects.filter(count__gte=1).all()
+    for obj in hash_obj:
+        obj.count = len(obj.middleagent_set.all())
+        obj.save()
+        if obj.count < 1:
+            obj.delete()
+    return JsonResponse({'delete_sets':delete_num})"""
