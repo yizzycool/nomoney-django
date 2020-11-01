@@ -21,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'y)9+ezfenza1ek=3cy9cr6jg7t%@sht9i4@b^$q5#2aowq_9)7'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
 
 USE_X_FORWARDED_HOST = True
 # Honor the 'X-Forwarded-Proto' header for request.is_secure().
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'middleware.checkIP.checkIP',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -135,6 +136,4 @@ STATICFILES_DIRS = [
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
-       'http://joker.nlplab.cc:3000 ',
-       'http://localhost:3000',
 )

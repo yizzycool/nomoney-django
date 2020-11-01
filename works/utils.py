@@ -18,6 +18,7 @@ wc_total = sum(wc_counter.values())
 special_tag = ['Na', 'Nb', 'Nc', 'LOC', 'PER', 'ORG']
 
 ws = WS(os.path.join(BASE_PATH, "data/data"))
+
 #pos = POS(os.path.join(BASE_PATH, "data/data"))
 #ner = NER(os.path.join(BASE_PATH, "data/data"))
 
@@ -73,10 +74,10 @@ def chi_square_test(tok_pos):
             chi.append([tok[idx], math.log2(chi2), p])
             words_done.append(tok[idx])
     chi = sorted(chi, key=lambda x: (x[1], x[2]), reverse=True)
-    print(chi)
+    #print(chi)
     if len(chi) > 0:
         max_value = chi[0][1]#max([c[1] for c in chi if wc_counter[c[0]] > 0] + [0])
-        print(max_value)
+        #print(max_value)
         chi = list(filter(lambda x: x[1] > (max_value / 2.), chi))
-    print(chi)
+    #print(chi)
     return chi[:5]

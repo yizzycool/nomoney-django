@@ -195,7 +195,7 @@ def get_case_by_case_id(request):
         "keyword": ' '.join(case['hashtag']),
         "offset": 0
     }
-    rec_response = requests.post('https://nomoney.nlplab.cc/api/search_case', json.dumps(rec_data))
+    rec_response = requests.post('https://nomoney.nlplab.cc/api/search_case', json.dumps(rec_data), headers={os.getenv('CHECK_KEY'):os.getenv('CHECK_VALUE')})
     rec = json.loads(rec_response.text)
     if rec['noData']:
         return JsonResponse(case)
@@ -394,6 +394,7 @@ def crud_case(request):
         obj.modifiedTime = localtime
     elif action == 'update':
         obj = Case.objects.filter(id=caseId).first()
+        if obj == None: return JsonResponse({'noData':True})
         #obj.modifiedTime = tz.localtime(tz.now())
     if action == 'create' or action == 'update':
         if 'employerId' in body:
@@ -410,9 +411,15 @@ def crud_case(request):
             obj.status = body['status']
         obj.save()
         # New func: add keywords as hashtag
-        if 'title' in body or 'text' in body or 'anyway' in body:
+        if 'title' in body or 'text' in body or 'updateHashtag' in body:
             # Before hashtag: delete old hashtag if exist
             for mid in obj.middleagent_set.all():
+                hash_obj = Hashtag.objects.filter(id=mid.hashtag.id).first()
+                if hash_obj:
+                    hash_obj.count = max( 0, hash_obj.count - 1 )
+                    hash_obj.save()
+                    if hash_obj.count == 0:
+                        hash_obj.delete()
                 mid.delete()
             content = obj.title + '\n' + obj.text
             tok_pos = utils.extract_tokens_pos(content)
@@ -446,6 +453,8 @@ def crud_case(request):
             if hash_obj:
                 hash_obj.count = max( 0, hash_obj.count - 1 )
                 hash_obj.save()
+                if hash_obj.count == 0:
+                    hash_obj.delete()
         Case.objects.filter(id=caseId).delete()
         cases = get_employer_history({'userIdToken':userIdToken})
         return JsonResponse({

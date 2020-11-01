@@ -1,8 +1,8 @@
 def acceptance_message(case, user):
     title = case['title']
     description = case['description']
-    phone_number = user['phone_number']
-    lineid = user['lineid']
+    phone_number = user['phone_number'] if user['phone_number'] != '' else '--'
+    lineid = user['lineid'] if user['lineid'] != '' else '--'
     url = case['url']
     message = {
         "type": "bubble",

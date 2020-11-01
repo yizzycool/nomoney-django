@@ -6,3 +6,4 @@ works/data.zip
 works/data/
 db.sqlite3
 works/migrations/
+.environ.sh
