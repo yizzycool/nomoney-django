@@ -22,7 +22,6 @@ from .views import recommanded_cases
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 
-
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 
@@ -53,7 +52,6 @@ def message_text(event):
         return
 
     userid = event.source.user_id
-
     cases = recommanded_cases(userid)
 
     if cases:
