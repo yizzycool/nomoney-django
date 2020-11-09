@@ -2,32 +2,41 @@ import os, json, math, monpa
 from collections import Counter
 from scipy.stats import chi2_contingency
 import numpy as np
-from ckiptagger import WS#, POS
+from ckiptagger import WS#, POS, NER
+from pathlib import Path
 
-
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+# path setting
+BASE_PATH = Path(__file__).resolve().parent.parent
+#BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 STOPWORDS_PATH = os.path.join(BASE_PATH, 'data/stopwords')
 WC_PATH = os.path.join(BASE_PATH, 'data/zh.wc')
 
+# open stopwords list
 stopwords = open(STOPWORDS_PATH).read().strip().splitlines()
 stopwords = list(map(lambda x: x.strip(), stopwords))
 
+# open word count as dict
 wc_counter = Counter(json.load(open(WC_PATH)))
 wc_total = sum(wc_counter.values())
 
+# POS tags that can be used as hashtag
 special_tag = ['Na', 'Nb', 'Nc', 'LOC', 'PER', 'ORG']
 
+# CKIP tagger init setting
 ws = WS(os.path.join(BASE_PATH, "data/data"))
-
 #pos = POS(os.path.join(BASE_PATH, "data/data"))
 #ner = NER(os.path.join(BASE_PATH, "data/data"))
 
+
+def extract_tokens(text):
+    return [tok for tok, pos in extract_tokens_pos(text)]
+
+
+def remove_stopwords():
+    pass
+
+
 def extract_tokens_pos(text):
-    """text = text.strip().replace('\r\n', '，').replace('\n', '，')
-    w = ws([text], sentence_segmentation=True, segment_delimiter_set = {",", "，", "。", ":", "：", "?", "？", "!", "！", ";", "；", "\n"})[0]
-    p = pos([w])[0]
-    word_lists = [(token, tag) for token, tag in zip(w, p) if 'CATEGORY' not in tag and 'SPACE' not in tag and token.lower() not in stopwords]
-    return word_lists"""
     lines = text.strip().splitlines()
     w = ws(lines, sentence_segmentation=True, segment_delimiter_set = {",", "，", "。", ":", "：", "?", "？", "!", "！", ";", "；", "\n"})
     w = [tok for tokens in w for tok in tokens]
@@ -38,18 +47,6 @@ def extract_tokens_pos(text):
             if 'CATEGORY' not in tag and 'SPACE' not in tag and token.lower() not in stopwords and (token in w or len(token) >= 3):
                 word_lists.append([token, tag])
     return word_lists
-    """lines = text.strip().splitlines()
-    word_lists = []
-    for line in lines:
-        result_pseg = monpa.pseg(line)
-        for token, tag in result_pseg:
-            if 'CATEGORY' not in tag and token.lower() not in stopwords:
-                word_lists.append([token, tag])
-    return word_lists"""
-
-
-def extract_tokens(text):
-    return [tok for tok, pos in extract_tokens_pos(text)]
 
 
 def chi_square_test(tok_pos):

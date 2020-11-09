@@ -2,7 +2,7 @@
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, FlexSendMessage, TemplateSendMessage, CarouselTemplate, Template
 from linebot.exceptions import LineBotApiError
-from . import message_objects
+from works.views import message_objects
 import os
 
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)

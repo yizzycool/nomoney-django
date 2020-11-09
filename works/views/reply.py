@@ -16,8 +16,8 @@ import json
 import os
 import sys
 
-from .message_objects import recommanded_cases_message
-from .views import recommanded_cases
+from works.views.message_objects import recommanded_cases_message
+from works.views.view_linebot_api import recommanded_cases
 
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
