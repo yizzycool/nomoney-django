@@ -1,5 +1,6 @@
 from django.urls import path
 from works.views import *
+from works.functions import *
 
 urlpatterns = [
     path('get_history', get_history, name='get_history'),

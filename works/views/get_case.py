@@ -1,8 +1,11 @@
-from django.http import HttpResponse, JsonResponse
-from works.models import User, Case, Application, Hashtag, MiddleAgent
 import json
+### Django ###
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone as tz
-from works.views.view_search_case import search_case
+### Django Models ###
+from works.models import User, Case, Application, Hashtag, MiddleAgent
+### My function ###
+from works.views.search_case import search_case
 
 
 # API

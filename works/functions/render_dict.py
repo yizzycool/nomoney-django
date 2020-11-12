@@ -1,3 +1,4 @@
+### Django Models ###
 from works.models import User, Case, Application, Hashtag, MiddleAgent
 
 

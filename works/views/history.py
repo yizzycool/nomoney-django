@@ -1,5 +1,7 @@
 import json
+### Django ###
 from django.http import HttpResponse, JsonResponse
+### Django Models ###
 from works.models import User, Case, Application, Hashtag, MiddleAgent
 
 

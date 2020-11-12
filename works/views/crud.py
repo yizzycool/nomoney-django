@@ -1,13 +1,16 @@
-from works.views.view_render_dict import *
-from django.utils import timezone as tz
-from django.http import HttpResponse, JsonResponse
 import json
+### Django ###
+from django.http import HttpResponse, JsonResponse
+from django.utils import timezone as tz
+### Django Models ###
 from works.models import User, Case, Application, Hashtag, MiddleAgent
-from works.views import utils
-from works.views.view_linebot_api import *
-from works.views.view_case import *
-from works.views.view_history import *
-from works.views.view_search_case import *
+### My Function ###
+from works.views.linebot_api import call_linebot_notify_acceptance, call_linebot_notify_application
+from works.views.get_case import get_case_by_case_id
+from works.views.history import get_employer_history
+from works.functions.render_dict import get_crud_profile, get_crud_case, get_crud_application
+from works.functions import utils
+
 
 # API
 def crud_profile(request):

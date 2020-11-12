@@ -1,8 +1,11 @@
+import json
+### Django ###
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone as tz
+### Django Models ###
 from works.models import User, Case, Application, Hashtag, MiddleAgent
-import json
-from works.views import utils
+### My functions
+from works.functions import utils
 
 
 # API

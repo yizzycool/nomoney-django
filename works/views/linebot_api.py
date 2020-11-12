@@ -1,4 +1,5 @@
-from works.views.push import notify_acceptance, notify_application
+### My Function ###
+from works.functions.push import notify_acceptance, notify_application
 
 
 ######################
