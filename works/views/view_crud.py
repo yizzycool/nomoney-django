@@ -1,9 +1,13 @@
 from works.views.view_render_dict import *
+from django.utils import timezone as tz
 from django.http import HttpResponse, JsonResponse
 import json
 from works.models import User, Case, Application, Hashtag, MiddleAgent
 from works.views import utils
 from works.views.view_linebot_api import *
+from works.views.view_case import *
+from works.views.view_history import *
+from works.views.view_search_case import *
 
 # API
 def crud_profile(request):
@@ -58,7 +62,7 @@ def crud_case(request):
     post = json.loads(request.body.decode('utf-8'))
     action = post.get('action')
     caseId = post.get('caseId')
-    if not action or not caseId:
+    if not action or caseId == None:
         return HttpResponse(status = 400)
     if action == 'create':
         obj = Case()
