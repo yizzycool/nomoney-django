@@ -32,13 +32,13 @@ def get_employee_history(post):
         {
             'employer':{
                 #------ Employer part ------#
-                'employerId': app.caseId.employerId.userId,
+                #'employerId': app.caseId.employerId.userId,
                 'displayName': app.caseId.employerId.displayName,
                 'image': app.caseId.employerId.image,
             },
             'employee':{
                 #------ Employee part ------#
-                'employeeId': app.employeeId.userId,
+                #'employeeId': app.employeeId.userId,
                 #'message': app.message,
                 'accepted': app.accepted,
                 'employerRating': app.employerRating,
@@ -75,7 +75,7 @@ def get_employer_history(post):
         {
             'employer':{
                 #------ Employer part ------#
-                'employerId': case.employerId.userId,
+                #'employerId': case.employerId.userId,
                 'displayName': case.employerId.displayName,
                 'image': case.employerId.image,
             },

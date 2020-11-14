@@ -23,7 +23,7 @@ def get_case_by_case_id(request):
         'noData': False,
         'employer':{
             #------ Employer part ------#
-            'employerId': obj.employerId.userId,
+            #'employerId': obj.employerId.userId,
             'displayName': obj.employerId.displayName,
             'image': obj.employerId.image,
             'gender': obj.employerId.gender,
@@ -87,7 +87,7 @@ def get_application_by_case_id(post, isOwner):
     applications = [
         {
             'caseId': obj.caseId.id,
-            'employeeId': obj.employeeId.userId,
+            #'employeeId': obj.employeeId.userId,
             'displayName': obj.employeeId.displayName,
             'message': obj.message,
             'accepted': obj.accepted,
@@ -95,6 +95,7 @@ def get_application_by_case_id(post, isOwner):
             'employerRating': obj.caseId.employerId.rating,
             'phone': obj.employeeId.phone,
             'lineId': obj.employeeId.lineId,
+            'appId': obj.id,
         }
         for obj in child_obj
     ]

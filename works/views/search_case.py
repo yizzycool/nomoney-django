@@ -55,7 +55,7 @@ def search_case(request):
             {
                 'matchScore' : obj_score[idx],
                 'caseId': case.id,
-                'employerId': case.employerId.userId,
+                #'employerId': case.employerId.userId,
                 'displayName': case.employerId.displayName,
                 'title': case.title,
                 'text': case.text,
@@ -81,7 +81,7 @@ def search_case(request):
         cases = [
             {
                 'caseId': case.id,
-                'employerId': case.employerId.userId,
+                #'employerId': case.employerId.userId,
                 'displayName': case.employerId.displayName,
                 'title': case.title,
                 'text': case.text,

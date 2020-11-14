@@ -153,17 +153,20 @@ def crud_application(request):
     post = json.loads(request.body.decode('utf-8'))
     action = post.get('action')
     caseId = post.get('caseId')
-    employeeId = post.get('employeeId')
-    if not action or not caseId or not employeeId:
+    #employeeId = post.get('employeeId')
+    userIdToken = post.get('userIdToken')
+    appId = post.get('appId')
+    if not action or not caseId or not appId or not userIdToken:
         return HttpResponse(status = 400)
+    appId = int(appId)
     if action == 'create':
-        if Application.objects.filter(caseId__id=caseId, employeeId__userId=employeeId):
+        if Application.objects.filter(caseId__id=caseId, id=appId):
             return JsonResponse({
                 'error': 'duplicated'
             })
         obj = Application()
         obj.caseId = Case.objects.get(id = caseId)
-        obj.employeeId = User.objects.get(userId = employeeId)
+        obj.employeeId = User.objects.get(userId = userIdToken)
         if 'message' in post:
             obj.message=post['message']
         obj.save()
@@ -175,7 +178,7 @@ def crud_application(request):
         return JsonResponse(get_crud_application(obj))
     # "UPDATE" is Only for employer
     if action == 'update':
-        obj = Application.objects.filter(caseId__id=caseId, employeeId__userId=employeeId).first()
+        obj = Application.objects.filter(caseId__id=caseId, id=appId).first()
         if obj == None:
             return JsonResponse({'noData':True})
         if 'message' in post:
@@ -185,7 +188,7 @@ def crud_application(request):
             if post['accepted'] == "A":
                 # call line bot to send notification
                 try:
-                    call_linebot_notify_acceptance(employeeId, obj)
+                    call_linebot_notify_acceptance(obj.employeeId.userId, obj)
                 except:
                     pass
         if 'employerRating' in post:
@@ -195,12 +198,12 @@ def crud_application(request):
         obj.save()
         return get_case_by_case_id(request)
     if action == 'read':
-        obj = Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId).first()
+        obj = Application.objects.filter(caseId__id=caseId).filter(id=appId).first()
         if obj == None:
             return JsonResponse({'noData':True})
         return JsonResponse(get_crud_application(obj))
     if action == 'delete':
-        Application.objects.filter(caseId__id=caseId).filter(employeeId__userId=employeeId).delete()
+        Application.objects.filter(caseId__id=caseId).filter(id=appId).delete()
         return JsonResponse({'success': True})
     else:
         return JsonResponse({'noData': True})
