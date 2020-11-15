@@ -44,14 +44,18 @@ def get_case_by_case_id(request):
         #------ Employee Data ------#
         'count': applications['count'],
         'applications':applications['applications'],
-        'recommendations':[]
+        'recommendations':[],
     }
     app_obj = Application.objects.filter(employeeId__userId=userIdToken, caseId__id=caseId).first()
     # If not Owner, then remove private information to keep data secure
-    if not isOwner and app_obj and app_obj.accepted != 'A':
-        case['employer'].pop('image', None)
-        case['employer'].pop('phone', None)
-        case['employer'].pop('lineId', None)
+    if not isOwner:
+        if app_obj == None or app_obj.accepted != 'A':
+            case['cancelBtn'] = False
+            case['employer'].pop('image', None)
+            case['employer'].pop('phone', None)
+            case['employer'].pop('lineId', None)
+        if app_obj and app_obj.accepted == 'T':
+            case['cancelBtn'] = True
     if len(case['hashtag']) == 0:
         return JsonResponse(case)
     # get recommendations of this case by hashtag (count of hashtag need to be more than 0)
@@ -91,8 +95,7 @@ def get_application_by_case_id(post, isOwner):
             'displayName': obj.employeeId.displayName,
             'message': obj.message,
             'accepted': obj.accepted,
-            'employeeRating': obj.employeeId.rating,
-            'employerRating': obj.caseId.employerId.rating,
+            'rating': obj.employeeId.rating,
             'phone': obj.employeeId.phone,
             'lineId': obj.employeeId.lineId,
             'appId': obj.id,
