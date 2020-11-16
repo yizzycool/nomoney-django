@@ -15,10 +15,11 @@ class User(models.Model):
     intro = models.TextField(default='', blank=True)
     gender = models.CharField(max_length=1, choices=GENDER, default='', blank=True)
     birthday = models.DateField(null=True, blank=True)
+    lineId = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     county = models.CharField(max_length=20, blank=True)
     rating = models.FloatField(null=True, default=None, blank=True)
-    lineId = models.CharField(max_length=100, blank=True)
+    #ratingCount = models.IntegerField(default=0, blank=True)
 
 
 class Case(models.Model):
@@ -36,6 +37,8 @@ class Case(models.Model):
     status = models.CharField(max_length=1, choices=STATUS, default='O', blank=True)
     publishTime = models.DateTimeField(default=tz.localtime(tz.now()), blank=True)
     modifiedTime = models.DateTimeField(default=tz.localtime(tz.now()), blank=True)
+    #rating = models.FloatField(null=True, default=None, blank=True)
+    #ratingCount = models.IntegerField(default=0, blank=True)
 
 
 class Application(models.Model):
@@ -60,3 +63,13 @@ class Hashtag(models.Model):
 class MiddleAgent(models.Model):
     case = models.ForeignKey(Case, on_delete=models.CASCADE, null=True)
     hashtag = models.ForeignKey(Hashtag, on_delete=models.CASCADE, null=True)
+
+
+class Rating(models.Model):
+    pass
+    """caseId = models.ForeignKey(Case, on_delete = models.CASCADE)
+    appId = models.ForeignKey(Application, on_delete = models.CASCADE)
+    raterId = models.ForeignKey(User, on_delete = models.CASCADE)
+    ratedId = models.ForeignKey(User, on_delete = models.CASCADE)
+    rating = models.FloatField()
+    comment = models.TextField(default='', blank=True)"""

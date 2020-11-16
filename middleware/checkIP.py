@@ -10,7 +10,7 @@ class checkIP:
     def __call__(self, request):
         if request.path == '/api/callback' or request.path.startswith('/api/admin'):
             return self.get_response(request)
-        if request.method != 'POST' or os.getenv('CHECK_KEY') not in request.headers or request.headers[os.getenv('CHECK_KEY')] != os.getenv('CHECK_VALUE'):
+        if request.method != 'POST' or os.getenv('CHECK_KEY') not in request.headers or request.headers[os.getenv('CHECK_KEY')] not in os.getenv('CHECK_VALUE').split(';'):
             return HttpResponseForbidden()
         response = self.get_response(request)
         return response
